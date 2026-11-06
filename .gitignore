@@ -76,6 +76,8 @@ web_modules/
 
 # Next.js build output
 .next
+.next-verify
+backups/
 out
 
 # Nuxt.js build / generate output

@@ -1,0 +1,1 @@
+ALTER TABLE "umkm_ai"."accounts" ALTER COLUMN "expires_at" SET DATA TYPE integer;
