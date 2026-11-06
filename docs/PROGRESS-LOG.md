@@ -122,3 +122,12 @@
 - Verifikasi (harness sementara `/dev-insight`, sudah dihapus): kartu normal 520x370 = ukuran sel; maximize 896x227 di tengah viewport 1440x900; isi 60 baris membuat tinggi panel berhenti di 876 px (`calc(100dvh-1.5rem)`) dengan area isi bergulir (1440/689); Esc menutup dan fokus kembali ke `#insight-card`.
 - QA/QC: `pnpm typecheck`, `pnpm lint`, `pnpm build` hijau. `pnpm security:tenant-check http://localhost:3000` → 7 pemeriksaan aman. Uji fitur sementara (dihapus setelah lulus): filter "Tanpa kategori" di `/transaksi` (5 pemeriksaan) dan kartu "Perlu perhatian" menembus ke daftar terfilter (9 pemeriksaan, termasuk `to=<kemarin>` dan `categoryId=none`).
 - Bersih-bersih sebelum commit: `.next-verify` dan halaman harness dihapus; `.gitignore` menutup `.next-verify` dan `backups/`; `.env.example` diperiksa hanya berisi placeholder (tanpa kunci asli).
+
+## 2026-11-06 — Diagnosis "login lama sekali" (dev server rusak karena build)
+
+- Gejala: login lewat `/masuk` menggantung. Log dev server: `POST /masuk 303 in 63777ms`, `GET /icon 404 in 69987ms`, `POST /masuk 404 in 3356770ms` (~55 menit), serta `failed to get redirect response [TypeError: fetch failed] [HeadersTimeoutError]`. `curl /api/auth/csrf` timeout 60–90 detik, padahal `GET /masuk` normal 0,1 detik.
+- Penyebab: `pnpm dev` dan `pnpm build` memakai `.next` yang sama; build dijalankan beberapa kali saat dev server hidup (sesi ini), sehingga manifest/chunk dev server tidak lagi cocok. Bukan bug aplikasi: konfigurasi auth benar (`AUTH_URL=http://localhost:3000`, `AUTH_TRUST_HOST=true`), argon2 hanya 0,02 detik.
+- Perbaikan: matikan dev server, hapus `.next`, jalankan ulang `pnpm dev`.
+- Sesudah bersih (akun uji 30 transaksi, dihapus lagi setelah ukur): `GET /api/auth/csrf` 0,07 s; `POST /api/auth/callback/credentials` 0,41 s (302 + cookie sesi); `/beranda` 1,16–1,40 s; `/transaksi?categoryId=none` 3,7 s (30 baris); `/api/auth/session` 0,09 s. Jadi login wajar ~1–2 detik.
+- Aturan operasional: hentikan `pnpm dev` sebelum `pnpm build` (dan sebaliknya). Usulan menulis aturan ini di `AGENTS.md` belum diterapkan karena penulisan file instruksi agen butuh persetujuan pengguna.
+- Kebersihan data: sisa akun uji sesi ini (`uji-lambat-*` + bisnisnya) dihapus. Masih tersisa dari sesi sebelumnya: `uji1793893504@example.com` (masih admin platform, MFA mati) dan `uji-isolasi-1793929786578@example.com` — belum dihapus, menunggu keputusan pemilik.
