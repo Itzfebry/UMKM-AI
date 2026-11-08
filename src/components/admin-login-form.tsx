@@ -13,7 +13,7 @@ export function AdminLoginForm() {
   return (
     <form action={action} className="flex flex-col gap-3">
       <h1 className="text-h2 text-deep">Masuk panel platform</h1>
-      <p className="text-caption text-deep/70">Halaman ini hanya untuk admin platform UMKM-AI. Sesi terpisah dari akun pengguna biasa.</p>
+      <p className="text-caption text-deep/90">Halaman ini hanya untuk admin platform UMKM-AI. Sesi terpisah dari akun pengguna biasa.</p>
       <ErrorText>{state?.error}</ErrorText>
       <label className="text-small font-semibold text-deep" htmlFor="admin-email">
         Email admin

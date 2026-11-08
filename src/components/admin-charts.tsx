@@ -41,7 +41,7 @@ export function AdminChart({
   empty?: string;
 }) {
   const total = series.reduce((sum, item) => sum + item.data.reduce((a, b) => a + b, 0), 0);
-  if (!total) return <p className="py-8 text-center text-small text-deep/75">{empty}</p>;
+  if (!total) return <p className="py-8 text-center text-small text-deep/90">{empty}</p>;
 
   const asCurrency = format === "idr";
   const formatValue = (value: number) => (asCurrency ? formatRupiah(Number(value)) : count.format(Number(value)));
@@ -49,10 +49,7 @@ export function AdminChart({
     chart: { type, fontFamily: "inherit", toolbar: { show: false }, stacked, background: "transparent" },
     plotOptions: { bar: { columnWidth: horizontal ? "58%" : "52%", borderRadius: 6, borderRadiusApplication: "end", horizontal } },
     stroke: { curve: "smooth", width: type === "area" ? 2.5 : 0 },
-    fill:
-      type === "bar"
-        ? { type: "gradient", gradient: { shade: "light", type: "vertical", shadeIntensity: 0.25, opacityFrom: 0.95, opacityTo: 0.7, stops: [0, 100] } }
-        : { type: "gradient", gradient: { shadeIntensity: 0.35, opacityFrom: 0.5, opacityTo: 0.02, stops: [0, 95] } },
+    fill: type === "bar" ? { type: "solid", opacity: 1 } : { type: "solid", opacity: 0.2 },
     dataLabels: { enabled: false },
     colors,
     xaxis: {
@@ -101,7 +98,7 @@ export function AdminDonut({
   height?: number;
   empty?: string;
 }) {
-  if (series.every((value) => value === 0)) return <p className="py-8 text-center text-small text-deep/75">{empty}</p>;
+  if (series.every((value) => value === 0)) return <p className="py-8 text-center text-small text-deep/90">{empty}</p>;
 
   const options: ApexOptions = {
     chart: { type: "donut", fontFamily: "inherit", background: "transparent" },

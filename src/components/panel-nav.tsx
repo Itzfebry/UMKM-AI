@@ -59,7 +59,7 @@ function Brand() {
       </span>
       <span className="flex flex-col leading-tight">
         <span className="text-h3 font-bold text-deep">UMKM-AI</span>
-        <span className="text-caption text-deep/65">Panel platform</span>
+        <span className="text-caption text-deep/90">Panel platform</span>
       </span>
     </span>
   );
@@ -92,9 +92,9 @@ export function PanelSidebar({ email, mfaEnabled }: { email: string | null; mfaE
 
       <nav aria-label="Bagian panel" className="flex-1 overflow-y-auto px-2 py-3">
         {GROUPS.map((group) => (
-          <div key={group} className="mb-3 last:mb-0">
-            <p className="px-2 pb-1.5 text-caption font-semibold uppercase tracking-wide text-deep/70">{group}</p>
-            <ul className="flex flex-col gap-0.5">
+          <div key={group} className="mb-4 last:mb-0">
+            <p className="px-2 pb-2 text-caption font-semibold uppercase tracking-wide text-deep/90">{group}</p>
+            <ul className="flex flex-col gap-1">
               {PANEL_SECTIONS.filter((section) => section.group === group).map((section) => {
                 const current = section.href === active;
                 const Icon = section.icon;
@@ -108,7 +108,7 @@ export function PanelSidebar({ email, mfaEnabled }: { email: string | null; mfaE
                       }`}
                     >
                       <span className={`absolute inset-y-2 left-0 w-1 rounded-full ${current ? "bg-accent" : "bg-transparent"}`} aria-hidden />
-                      <Icon className={`size-4 shrink-0 ${current ? "text-accent" : "text-deep/80"}`} aria-hidden />
+                      <Icon className={`size-4 shrink-0 ${current ? "text-accent" : "text-deep/90"}`} aria-hidden />
                       {section.label}
                     </a>
                   </li>
@@ -119,18 +119,18 @@ export function PanelSidebar({ email, mfaEnabled }: { email: string | null; mfaE
         ))}
       </nav>
 
-      <div className="border-t border-deep/10 bg-white px-3 py-3">
+      <div className="border-t border-deep/10 bg-white px-4 py-4">
         <p className="truncate text-caption font-semibold text-deep" title={email ?? undefined}>
           {email ?? "sesi panel"}
         </p>
-        <p className={`mt-0.5 flex items-center gap-1.5 text-caption ${mfaEnabled ? "text-deep/80" : "font-semibold text-primary"}`}>
+        <p className={`mt-1.5 flex items-center gap-1.5 text-caption ${mfaEnabled ? "text-deep/90" : "font-semibold text-primary"}`}>
           <span className={`size-1.5 rounded-full ${mfaEnabled ? "bg-deep" : "bg-primary"}`} aria-hidden />
           {mfaEnabled ? "MFA aktif" : "MFA belum aktif"}
         </p>
-        <div className="mt-2">
+        <div className="mt-3">
           <LogoutButton />
         </div>
-        <p className="mt-2 text-caption text-deep/70">Sesi panel terpisah dari sesi pengguna.</p>
+        <p className="mt-3 text-caption leading-relaxed text-deep/90">Sesi panel terpisah dari sesi pengguna.</p>
       </div>
     </aside>
   );
@@ -160,7 +160,7 @@ export function PanelMobileNav() {
                 href={section.href}
                 aria-current={current ? "true" : undefined}
                 className={`shrink-0 border-b-2 px-3 py-3 text-small font-semibold transition ${
-                  current ? "border-deep text-ink" : "border-transparent text-deep/70 hover:border-deep/30 hover:text-deep"
+                  current ? "border-deep text-ink" : "border-transparent text-deep/90 hover:border-deep/30 hover:text-deep"
                 }`}
               >
                 {section.label}
@@ -168,8 +168,6 @@ export function PanelMobileNav() {
             );
           })}
         </nav>
-        {/* Petunjuk bahwa tab bisa digulir ke samping. */}
-        <span className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#F7F5F4] to-transparent" aria-hidden />
       </div>
     </div>
   );

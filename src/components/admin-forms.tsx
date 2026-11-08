@@ -13,7 +13,7 @@ export function VerifyInvoiceButton({ invoiceId }: { invoiceId: string }) {
       <input type="hidden" name="id" value={invoiceId} />
       <SubmitButton pendingLabel="Memverifikasi...">Verifikasi & aktifkan Pro</SubmitButton>
       <ErrorText>{state?.error}</ErrorText>
-      {state?.ok && state.info ? <p className="text-caption text-deep/80">{state.info}</p> : null}
+      {state?.ok && state.info ? <p className="text-caption text-deep/90">{state.info}</p> : null}
     </form>
   );
 }

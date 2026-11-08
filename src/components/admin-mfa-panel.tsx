@@ -22,7 +22,7 @@ export function AdminMfaPanel({ enabled }: { enabled: boolean }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-small text-deep/80">
+      <p className="text-small text-deep/90">
         MFA wajib untuk admin platform. {enabled ? "Status: aktif." : "Status: belum aktif."}
       </p>
 
@@ -30,7 +30,7 @@ export function AdminMfaPanel({ enabled }: { enabled: boolean }) {
         <div className="flex flex-col items-center gap-2 rounded-lg bg-surface p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {startState?.qr ? <img src={startState.qr} alt="QR pendaftaran MFA" width={224} height={224} className="rounded bg-white p-1" /> : null}
-          <p className="w-full break-all text-caption text-deep/80">
+          <p className="w-full break-all text-caption text-deep/90">
             Scan QR di atas, atau tambahkan manual: <code>{otpauth}</code>
           </p>
         </div>

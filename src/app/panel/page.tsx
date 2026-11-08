@@ -115,15 +115,13 @@ export default async function PanelPage() {
 
   return (
     <>
-      <header className="relative overflow-hidden rounded-3xl border border-white/10 bg-[linear-gradient(135deg,#070C0F_0%,#123039_55%,#1D4E5C_100%)] p-5 text-white shadow-xl sm:p-6">
-        <span className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-accent/20 blur-3xl" aria-hidden />
-        <span className="pointer-events-none absolute -bottom-28 left-1/3 size-64 rounded-full bg-primary/20 blur-3xl" aria-hidden />
+      <header className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#123039] p-5 text-white shadow-xl sm:p-6">
 
-        <div className="relative flex flex-wrap items-start justify-between gap-4">
+        <div className="relative flex flex-wrap items-start justify-between gap-6">
           <div>
             <p className="text-caption font-semibold uppercase tracking-[0.2em] text-accent">Panel platform UMKM-AI</p>
-            <h1 className="mt-2 text-h1 text-white">Pusat kendali operasional</h1>
-            <p className="mt-2 max-w-3xl text-small text-white/75">
+            <h1 className="mt-3 text-h1 text-white">Pusat kendali operasional</h1>
+            <p className="mt-3 max-w-2xl text-small leading-relaxed text-white/80">
               Penggunaan AI, usaha &amp; akun, keamanan, keadaan database, dan kesiapan backup dalam satu layar. Target verifikasi pembayaran 2 jam pada jam operasional
               09.00–17.00 WIB.
             </p>
@@ -149,7 +147,7 @@ export default async function PanelPage() {
 
         {!mfaEnabled ? (
           <p
-            className="relative mt-4 flex items-start gap-2 rounded-xl border border-accent/60 bg-black/35 px-3 py-2 text-small font-semibold text-white"
+            className="relative mt-6 flex items-start gap-2.5 rounded-xl border border-accent/60 bg-black/35 px-4 py-3 text-small font-semibold leading-relaxed text-white"
             role="alert"
           >
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
@@ -157,7 +155,7 @@ export default async function PanelPage() {
           </p>
         ) : null}
 
-        <div className="relative mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="relative mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <GlassTile label="Usaha aktif" value={count.format(summary.businesses)} hint={`${count.format(proCount)} paket Pro · ${count.format(summary.users)} pengguna`} tone="deep" />
           <GlassTile label="Request AI 30 hari" value={count.format(calls30d)} hint={`${count.format(failed30d)} gagal · rata-rata ${count.format(avgMs)} ms`} tone="accent" />
           <GlassTile label="Login gagal 24 jam" value={count.format(summary.failedLogins24h)} hint={`${count.format(summary.logins24h)} percobaan masuk total`} tone={summary.failedLogins24h > 0 ? "primary" : "accent"} />
@@ -165,9 +163,10 @@ export default async function PanelPage() {
         </div>
       </header>
 
-      <section id="ringkasan" className="scroll-mt-24">
-        <SectionHeader title="Ringkasan platform" icon={<Activity className={iconClass} />} subtitle="Angka inti yang berubah setiap hari. Kartu bergaris merah menandakan hal yang perlu ditindak." />
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section id="ringkasan" className="mt-12 scroll-mt-28 border-t border-deep/10 pt-12">
+        <SectionHeader tone="deep"
+          title="Ringkasan platform" icon={<Activity className={iconClass} />} subtitle="Angka inti yang berubah setiap hari. Kartu bergaris merah menandakan hal yang perlu ditindak." />
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Tile label="Usaha terdaftar" value={count.format(summary.businesses)} hint={`${count.format(summary.memberships)} keanggotaan`} icon={<Store className="size-4" />} />
           <Tile
             label="Pengguna"
@@ -232,15 +231,16 @@ export default async function PanelPage() {
         </div>
       </section>
 
-      <section id="ai" className="mt-10 scroll-mt-28">
+      <section id="ai" className="mt-16 scroll-mt-28 border-t border-deep/10 pt-12">
         <SectionHeader
+          tone="plum"
           title="Penggunaan AI"
           icon={<Sparkles className={iconClass} />}
           subtitle="Diambil dari audit internal (audit_events jenis ai). Kuota dipotong hanya setelah jawaban berhasil dibaca."
         />
 
-        <div className="mt-4 grid gap-4 xl:grid-cols-2">
-          <PanelCard title="Request AI per hari (30 hari)">
+        <div className="mt-6 grid gap-5 xl:grid-cols-2">
+          <PanelCard tone="plum" icon={<Activity className="size-4" />} title="Request AI per hari (30 hari)">
             <figure>
               <AdminChart
                 categories={daily.map((point) => dayLabel(point.day))}
@@ -252,13 +252,13 @@ export default async function PanelPage() {
                 stacked
                 empty="Belum ada panggilan AI dalam 30 hari terakhir."
               />
-              <figcaption className="mt-1 text-caption text-deep/70">
+              <figcaption className="mt-1 text-caption text-deep/90">
                 Total {count.format(calls30d)} panggilan, {count.format(failed30d)} gagal, rata-rata {count.format(avgMs)} ms.
               </figcaption>
             </figure>
           </PanelCard>
 
-          <PanelCard title="Token AI per hari">
+          <PanelCard tone="plum" icon={<Coins className="size-4" />} title="Token AI per hari">
             <figure>
               <AdminChart
                 categories={daily.map((point) => dayLabel(point.day))}
@@ -270,7 +270,7 @@ export default async function PanelPage() {
                 stacked
                 empty="Pemakaian token belum tercatat. Angka mulai terkumpul pada panggilan AI berikutnya."
               />
-              <figcaption className="mt-1 text-caption text-deep/70">
+              <figcaption className="mt-1 text-caption text-deep/90">
                 {count.format(tokensIn)} token masuk + {count.format(tokensOut)} token keluar.{" "}
                 {cost === null || !rates
                   ? "Tarif biaya belum diset: isi AI_COST_INPUT_PER_MTOK dan AI_COST_OUTPUT_PER_MTOK untuk menaksir biaya."
@@ -280,10 +280,10 @@ export default async function PanelPage() {
           </PanelCard>
         </div>
 
-        <div className="mt-4 grid gap-4 xl:grid-cols-2">
-          <PanelCard title="Pemakaian per model">
+        <div className="mt-6 grid gap-5 xl:grid-cols-2">
+          <PanelCard tone="plum" icon={<Bot className="size-4" />} title="Pemakaian per model">
             {byModel.length === 0 ? (
-              <p className="mt-3 text-small text-deep/70">Belum ada panggilan AI tercatat.</p>
+              <p className="mt-3 text-small text-deep/90">Belum ada panggilan AI tercatat.</p>
             ) : (
               <TableWrap caption="Panggilan AI per model">
                 <thead>
@@ -310,9 +310,9 @@ export default async function PanelPage() {
             )}
           </PanelCard>
 
-          <PanelCard title="Pemakaian per jenis analisis">
+          <PanelCard tone="plum" icon={<Sparkles className="size-4" />} title="Pemakaian per jenis analisis">
             {byKind.length === 0 ? (
-              <p className="mt-3 text-small text-deep/70">Belum ada panggilan AI tercatat.</p>
+              <p className="mt-3 text-small text-deep/90">Belum ada panggilan AI tercatat.</p>
             ) : (
               <TableWrap caption="Panggilan AI per jenis analisis">
                 <thead>
@@ -340,7 +340,7 @@ export default async function PanelPage() {
           </PanelCard>
         </div>
 
-        <PanelCard
+        <PanelCard tone="plum" icon={<Store className="size-4" />}
           className="mt-4"
           title="Request AI bulan ini per usaha"
           note={`Periode ${period}. Batang terpanjang menandakan usaha yang paling banyak memakai analisis AI.`}
@@ -354,22 +354,23 @@ export default async function PanelPage() {
               height={Math.max(200, topAiBusinesses.length * 36)}
               empty="Belum ada usaha yang memakai analisis AI bulan ini."
             />
-            <figcaption className="mt-1 text-caption text-deep/70">
+            <figcaption className="mt-1 text-caption text-deep/90">
               {count.format(topAiBusinesses.reduce((sum, business) => sum + business.aiRequests, 0))} request dari {count.format(topAiBusinesses.length)} usaha teratas bulan ini.
             </figcaption>
           </figure>
         </PanelCard>
       </section>
 
-      <section id="usaha" className="mt-10 scroll-mt-28">
+      <section id="usaha" className="mt-16 scroll-mt-28 border-t border-deep/10 pt-12">
         <SectionHeader
+          tone="moss"
           title="Usaha & akun"
           icon={<Store className={iconClass} />}
           subtitle="Siapa pemiliknya, berapa anggota, seberapa aktif catatannya, dan sampai mana kuota terpakai. Isi catatan keuangan pribadi tidak ditampilkan."
         />
 
-        <div className="mt-4 grid gap-4 xl:grid-cols-3">
-          <PanelCard title="Peran anggota">
+        <div className="mt-6 grid gap-5 xl:grid-cols-3">
+          <PanelCard tone="moss" icon={<Users className="size-4" />} title="Peran anggota">
             <figure>
               <AdminDonut
                 labels={["Owner", "Admin usaha", "Staf"]}
@@ -377,13 +378,13 @@ export default async function PanelPage() {
                 colors={["#2C687B", "#8CC7C4", "#DB1A1A"]}
                 empty="Belum ada anggota usaha."
               />
-              <figcaption className="mt-1 text-caption text-deep/70">
+              <figcaption className="mt-1 text-caption text-deep/90">
                 {count.format(summary.memberships)} keanggotaan untuk {count.format(summary.businesses)} usaha.
               </figcaption>
             </figure>
           </PanelCard>
 
-          <PanelCard title="Paket usaha">
+          <PanelCard tone="moss" icon={<CreditCard className="size-4" />} title="Paket usaha">
             <figure>
               <AdminDonut
                 labels={["Pro efektif", "Free efektif"]}
@@ -391,28 +392,28 @@ export default async function PanelPage() {
                 colors={["#2C687B", "#8CC7C4"]}
                 empty="Belum ada usaha terdaftar."
               />
-              <figcaption className="mt-1 text-caption text-deep/70">Paket efektif memperhitungkan status langganan dan masa tenggang 7 hari.</figcaption>
+              <figcaption className="mt-1 text-caption text-deep/90">Paket efektif memperhitungkan status langganan dan masa tenggang 7 hari.</figcaption>
             </figure>
           </PanelCard>
 
-          <PanelCard title="Beban data per usaha">
+          <PanelCard tone="moss" icon={<Database className="size-4" />} title="Beban data per usaha">
             <ul className="mt-3 flex flex-col gap-2 text-small text-deep">
               {businesses.slice(0, 6).map((business) => (
                 <li key={business.id} className="flex items-center justify-between gap-3 border-b border-deep/10 pb-1">
                   <span className="font-semibold text-ink">{business.name}</span>
-                  <span className="tabular text-deep/80">
+                  <span className="tabular text-deep/90">
                     {count.format(business.transactions)} transaksi · {count.format(business.openDebts)} utang/piutang
                   </span>
                 </li>
               ))}
-              {businesses.length === 0 ? <li className="text-deep/70">Belum ada usaha.</li> : null}
+              {businesses.length === 0 ? <li className="text-deep/90">Belum ada usaha.</li> : null}
             </ul>
           </PanelCard>
         </div>
 
-        <PanelCard className="mt-4" title="Daftar usaha" note={`Kuota memakai periode berjalan ${period}. Hanya owner bisa menghapus usaha.`}>
+        <PanelCard tone="moss" icon={<Store className="size-4" />} className="mt-6" title="Daftar usaha" note={`Kuota memakai periode berjalan ${period}. Hanya owner bisa menghapus usaha.`}>
           {businesses.length === 0 ? (
-            <p className="mt-3 text-small text-deep/70">Belum ada usaha terdaftar.</p>
+            <p className="mt-3 text-small text-deep/90">Belum ada usaha terdaftar.</p>
           ) : (
             <TableWrap caption="Daftar usaha beserta pemilik, aktivitas, kuota, dan kesiapan backup" wide>
               <thead>
@@ -433,13 +434,13 @@ export default async function PanelPage() {
                   <tr key={business.id}>
                     <td className={td}>
                       <span className="font-semibold text-ink">{business.name}</span>
-                      <span className="block text-caption text-deep/60">dibuat {dayOnly(business.createdAt)}</span>
+                      <span className="block text-caption text-deep/90">dibuat {dayOnly(business.createdAt)}</span>
                     </td>
                     <td className={td}>{business.ownerEmail ?? "—"}</td>
                     <td className={`${td} tabular`}>{count.format(business.members)}</td>
                     <td className={`${td} tabular`}>
                       {count.format(business.transactions)}
-                      <span className="block text-caption text-deep/60">
+                      <span className="block text-caption text-deep/90">
                         bulan ini {count.format(business.transactionsThisMonth)}
                         {Number.isFinite(business.txQuota) ? `/${count.format(business.txQuota)}` : ""} · {count.format(business.openDebts)} utang
                       </span>
@@ -454,13 +455,13 @@ export default async function PanelPage() {
                           style={{ width: `${Math.min(100, Math.round((business.aiRequests / Math.max(1, business.aiQuota)) * 100))}%` }}
                         />
                       </span>
-                      <span className="block text-caption text-deep/60">sisa {count.format(Math.max(0, business.aiQuota - business.aiRequests))} request</span>
+                      <span className="block text-caption text-deep/90">sisa {count.format(Math.max(0, business.aiQuota - business.aiRequests))} request</span>
                     </td>
                     <td className={td}>
                       <Chip tone={business.effectivePlan === "pro" ? "ok" : "neutral"} dot>
                         {business.planLabel}
                       </Chip>
-                      <span className="mt-1 block text-caption text-deep/60">
+                      <span className="mt-1 block text-caption text-deep/90">
                         {PLAN_STATUS_LABEL[business.planStatus] ?? business.planStatus}
                         {business.periodEnd ? ` · sampai ${dayOnly(business.periodEnd)}` : ""}
                       </span>
@@ -482,15 +483,16 @@ export default async function PanelPage() {
         </PanelCard>
       </section>
 
-      <section id="keamanan" className="mt-10 scroll-mt-28">
+      <section id="keamanan" className="mt-16 scroll-mt-28 border-t border-deep/10 pt-12">
         <SectionHeader
+          tone="primary"
           title="Keamanan"
           icon={<ShieldCheck className={iconClass} />}
           subtitle="Status admin platform, percobaan masuk, dan kesiapan konfigurasi rahasia. Nilai rahasia hanya ditampilkan terisi atau kosong."
         />
 
-        <div className="mt-4 grid gap-4 xl:grid-cols-2">
-          <PanelCard title="Admin platform">
+        <div className="mt-6 grid gap-5 xl:grid-cols-2">
+          <PanelCard tone="primary" icon={<ShieldCheck className="size-4" />} title="Admin platform">
             <TableWrap caption="Daftar admin platform dan status MFA">
               <thead>
                 <tr>
@@ -520,9 +522,9 @@ export default async function PanelPage() {
             </div>
           </PanelCard>
 
-          <PanelCard title="Percobaan masuk gagal (7 hari)" note="Batas 5 kegagalan per 15 menit untuk email yang sama, berlaku di login pengguna dan login panel.">
+          <PanelCard tone="primary" icon={<AlertTriangle className="size-4" />} title="Percobaan masuk gagal (7 hari)" note="Batas 5 kegagalan per 15 menit untuk email yang sama, berlaku di login pengguna dan login panel.">
             {security.failed.length === 0 ? (
-              <p className="mt-3 text-small text-deep/70">Tidak ada percobaan masuk gagal dalam tujuh hari terakhir.</p>
+              <p className="mt-3 text-small text-deep/90">Tidak ada percobaan masuk gagal dalam tujuh hari terakhir.</p>
             ) : (
               <TableWrap caption="Percobaan masuk gagal per email">
                 <thead>
@@ -548,14 +550,14 @@ export default async function PanelPage() {
           </PanelCard>
         </div>
 
-        <div className="mt-4 grid gap-4 xl:grid-cols-3">
-          <PanelCard title="Kesiapan konfigurasi">
+        <div className="mt-6 grid gap-5 xl:grid-cols-3">
+          <PanelCard tone="primary" icon={<KeyRound className="size-4" />} title="Kesiapan konfigurasi">
             <ul className="mt-3 flex flex-col gap-2 text-small">
               {security.config.map((item) => (
                 <li key={item.label} className="flex items-start justify-between gap-3 border-b border-deep/10 pb-1">
                   <span>
                     <span className="font-semibold text-ink">{item.label}</span>
-                    <span className="block text-caption text-deep/65">{item.hint}</span>
+                    <span className="block text-caption text-deep/90">{item.hint}</span>
                   </span>
                   <Chip tone={item.ready ? "ok" : "warn"} dot>
                     {item.ready ? "terisi" : "kosong"}
@@ -565,15 +567,15 @@ export default async function PanelPage() {
             </ul>
           </PanelCard>
 
-          <PanelCard title="Peristiwa keamanan terakhir">
+          <PanelCard tone="primary" icon={<Activity className="size-4" />} title="Peristiwa keamanan terakhir">
             {security.events.length === 0 ? (
-              <p className="mt-3 text-small text-deep/70">Belum ada peristiwa keamanan.</p>
+              <p className="mt-3 text-small text-deep/90">Belum ada peristiwa keamanan.</p>
             ) : (
               <ul className="mt-3 flex flex-col gap-2 text-small text-deep">
                 {security.events.map((item, index) => (
                   <li key={`${item.at}-${index}`} className="border-b border-deep/10 pb-1">
                     <span className="font-semibold text-ink">{item.action.replace(/_/g, " ")}</span>
-                    <span className="block text-caption text-deep/65">
+                    <span className="block text-caption text-deep/90">
                       {stamp(item.at)} · {item.actor ?? "tanpa aktor"}
                     </span>
                   </li>
@@ -582,16 +584,16 @@ export default async function PanelPage() {
             )}
           </PanelCard>
 
-          <PanelCard title="Percobaan masuk terakhir">
+          <PanelCard tone="primary" icon={<KeyRound className="size-4" />} title="Percobaan masuk terakhir">
             {security.recentLogins.length === 0 ? (
-              <p className="mt-3 text-small text-deep/70">Belum ada catatan masuk.</p>
+              <p className="mt-3 text-small text-deep/90">Belum ada catatan masuk.</p>
             ) : (
               <ul className="mt-3 flex flex-col gap-2 text-small text-deep">
                 {security.recentLogins.map((item, index) => (
                   <li key={`${item.at}-${index}`} className="flex items-start justify-between gap-3 border-b border-deep/10 pb-1">
                     <span>
                       <span className="font-semibold text-ink">{item.email ?? "(tanpa email)"}</span>
-                      <span className="block text-caption text-deep/65">
+                      <span className="block text-caption text-deep/90">
                         {stamp(item.at)} · {item.scope === "platform_admin" ? "panel platform" : "aplikasi"}
                       </span>
                     </span>
@@ -606,14 +608,15 @@ export default async function PanelPage() {
         </div>
       </section>
 
-      <section id="database" className="mt-10 scroll-mt-28">
+      <section id="database" className="mt-16 scroll-mt-28 border-t border-deep/10 pt-12">
         <SectionHeader
+          tone="steel"
           title="Status database"
           icon={<Database className={iconClass} />}
           subtitle={`Database ${database.name} (${database.version}), schema ${database.schema}, koneksi lewat ${database.connection}. Ukuran total ${database.size}.`}
         />
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Tile label="Migrasi diterapkan" value={count.format(database.migrationsApplied)} hint={`terakhir ${stamp(database.lastMigration)}`} icon={<Server className="size-4" />} />
           <Tile
             label="Berkas migrasi di repo"
@@ -637,7 +640,7 @@ export default async function PanelPage() {
           />
         </div>
 
-        <PanelCard className="mt-4" title="Isi & ukuran tabel" note="Ukuran termasuk indeks; jumlah baris dihitung tepat, bukan perkiraan statistik.">
+        <PanelCard tone="steel" icon={<Database className="size-4" />} className="mt-6" title="Isi & ukuran tabel" note="Ukuran termasuk indeks; jumlah baris dihitung tepat, bukan perkiraan statistik.">
           <TableWrap caption="Jumlah baris, ukuran, dan status RLS tiap tabel" wide>
             <thead>
               <tr>
@@ -657,7 +660,7 @@ export default async function PanelPage() {
                   <td className={td}>
                     <Chip tone={item.rls ? "ok" : "neutral"}>{item.rls ? "aktif" : "nonaktif"}</Chip>
                   </td>
-                  <td className={`${td} text-deep/70`}>{TABLE_PURPOSE[item.table] ?? "—"}</td>
+                  <td className={`${td} text-deep/90`}>{TABLE_PURPOSE[item.table] ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -665,15 +668,16 @@ export default async function PanelPage() {
         </PanelCard>
       </section>
 
-      <section id="backup" className="mt-10 scroll-mt-28">
+      <section id="backup" className="mt-16 scroll-mt-28 border-t border-deep/10 pt-12">
         <SectionHeader
+          tone="ochre"
           title="Backup & pemulihan"
           icon={<HardDriveDownload className={iconClass} />}
           subtitle={`Dua lapis: backup otomatis harian Supabase, dan salinan mandiri pnpm backup:export yang menulis seluruh tabel schema ${database.schema}. Berkas branding & bukti bayar hanya ikut backup Supabase.`}
         />
 
-        <div className="mt-4 grid gap-4 xl:grid-cols-2">
-          <PanelCard title="Salinan mandiri" note={backup.latest ? undefined : `Folder yang dipantau: ${backup.folder}`}>
+        <div className="mt-6 grid gap-5 xl:grid-cols-2">
+          <PanelCard tone="ochre" icon={<HardDriveDownload className="size-4" />} title="Salinan mandiri" note={backup.latest ? undefined : `Folder yang dipantau: ${backup.folder}`}>
             {backup.latest ? (
               <>
                 <p className="mt-2 text-small text-deep">
@@ -707,7 +711,7 @@ export default async function PanelPage() {
                 hasilnya di penyimpanan terenkripsi di luar repo.
               </p>
             )}
-            <p className="mt-2 text-caption text-deep/70">
+            <p className="mt-2 text-caption text-deep/90">
               Uji pemulihan bulanan: ekspor → pulihkan ke database uji dengan <code>pnpm db:migrate</code> → bandingkan jumlah baris dengan manifest. Langkah lengkap ada di{" "}
               <code>docs/BACKUP.md</code>.
             </p>
@@ -720,7 +724,7 @@ export default async function PanelPage() {
             ) : null}
           </PanelCard>
 
-          <PanelCard title="Cakupan per usaha" note="Ekspor bekerja per schema, bukan per usaha: memulihkan satu usaha berarti memuat tabelnya lalu menyaring business_id.">
+          <PanelCard tone="ochre" icon={<Store className="size-4" />} title="Cakupan per usaha" note="Ekspor bekerja per schema, bukan per usaha: memulihkan satu usaha berarti memuat tabelnya lalu menyaring business_id.">
             <TableWrap caption="Kesiapan backup per usaha">
               <thead>
                 <tr>
@@ -736,11 +740,11 @@ export default async function PanelPage() {
                     <td className={td}>{business.name}</td>
                     <td className={`${td} tabular`}>
                       {count.format(business.transactions + business.openDebts)}
-                      <span className="block text-caption text-deep/60">transaksi + utang/piutang</span>
+                      <span className="block text-caption text-deep/90">transaksi + utang/piutang</span>
                     </td>
                     <td className={`${td} tabular`}>
                       {count.format(business.brandingFiles)}
-                      <span className="block text-caption text-deep/60">logo/latar kartu saldo</span>
+                      <span className="block text-caption text-deep/90">logo/latar kartu saldo</span>
                     </td>
                     <td className={td}>
                       <Chip tone={business.brandingFiles > 0 ? "warn" : "ok"} dot>
@@ -758,7 +762,7 @@ export default async function PanelPage() {
                 ) : null}
               </tbody>
             </TableWrap>
-            <p className="mt-2 text-caption text-deep/70">
+            <p className="mt-2 text-caption text-deep/90">
               {brandingBusinesses.length === 0
                 ? "Tidak ada usaha dengan berkas branding."
                 : `${count.format(brandingBusinesses.length)} usaha punya berkas di bucket privat (${brandingBusinesses.map((item) => item.name).join(", ")}).`}{" "}
@@ -768,11 +772,12 @@ export default async function PanelPage() {
         </div>
       </section>
 
-      <section id="langganan" className="mt-10 scroll-mt-28">
-        <SectionHeader title="Langganan & pembayaran" icon={<CreditCard className={iconClass} />} subtitle="Verifikasi hanya setelah dana benar-benar masuk rekening/QRIS." />
-        <PanelCard className="mt-4" title={`Invoice (${count.format(invoices.length)})`}>
+      <section id="langganan" className="mt-16 scroll-mt-28 border-t border-deep/10 pt-12">
+        <SectionHeader tone="cobalt"
+          title="Langganan & pembayaran" icon={<CreditCard className={iconClass} />} subtitle="Verifikasi hanya setelah dana benar-benar masuk rekening/QRIS." />
+        <PanelCard tone="cobalt" icon={<CreditCard className="size-4" />} className="mt-6" title={`Invoice (${count.format(invoices.length)})`}>
           {invoices.length === 0 ? (
-            <p className="mt-3 text-small text-deep/70">Belum ada invoice.</p>
+            <p className="mt-3 text-small text-deep/90">Belum ada invoice.</p>
           ) : (
             <ul className="mt-2 divide-y divide-deep/10">
               {invoices.map((invoice) => (
@@ -787,11 +792,11 @@ export default async function PanelPage() {
                           {STATUS_LABEL[invoice.status] ?? invoice.status}
                         </Chip>
                       </p>
-                      <p className="text-caption text-deep/70">
+                      <p className="text-caption text-deep/90">
                         dibuat {stamp(invoice.createdAt)} · berlaku sampai {stamp(invoice.expiresAt)}
                       </p>
                       {proofFor(invoice.id).map((proof) => (
-                        <p key={proof.id} className="text-caption text-deep/70">
+                        <p key={proof.id} className="text-caption text-deep/90">
                           Bukti {stamp(proof.createdAt)}: {proof.note ?? "(tanpa keterangan)"}
                           {proof.objectPath ? ` · berkas: ${proof.objectPath}` : " · tanpa berkas"}
                         </p>
@@ -812,13 +817,14 @@ export default async function PanelPage() {
         </PanelCard>
       </section>
 
-      <section id="operasional" className="mt-10 scroll-mt-28">
+      <section id="operasional" className="mt-16 scroll-mt-28 border-t border-deep/10 pt-12">
         <SectionHeader
+          tone="deep"
           title="Tugas terjadwal & audit"
           icon={<CalendarClock className={iconClass} />}
           subtitle="Retensi audit keamanan dan aktivitas admin 90 hari. Riwayat perubahan transaksi tidak ikut terhapus."
         />
-        <PanelCard className="mt-4" title="Jalankan manual">
+        <PanelCard tone="deep" icon={<RefreshCw className="size-4" />} className="mt-6" title="Jalankan manual">
           <form action={purgeOldAuditEvents} className="mt-3">
             <button type="submit" className={btn.secondary}>
               Bersihkan audit lebih dari 90 hari
@@ -829,12 +835,12 @@ export default async function PanelPage() {
               <RefreshCw className="size-4" aria-hidden />
               Jalankan tugas terjadwal sekarang
             </button>
-            <p className="mt-1 text-caption text-deep/70">
+            <p className="mt-1 text-caption text-deep/90">
               Menandai invoice kedaluwarsa, mengakhiri masa tenggang Pro, mengirim pengingat H-3, membuat analisis harian, dan membersihkan audit lama. Cron otomatis memanggil{" "}
               <code>/api/cron/notifications</code> dengan <code>CRON_SECRET</code>.
             </p>
           </form>
-          <p className="mt-4 text-caption text-deep/70">
+          <p className="mt-4 text-caption text-deep/90">
             <Link href="/masuk" className="font-semibold text-primary hover:underline">
               Masuk sebagai pengguna biasa
             </Link>{" "}

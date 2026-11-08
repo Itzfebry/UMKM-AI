@@ -29,7 +29,7 @@ export function PageHeader({ title, subtitle }: { title: string; subtitle?: stri
   return (
     <header className="mb-4">
       <h1 className="text-h1 text-deep">{title}</h1>
-      {subtitle ? <p className="mt-1 text-small text-deep/80">{subtitle}</p> : null}
+      {subtitle ? <p className="mt-1 text-small text-deep/90">{subtitle}</p> : null}
     </header>
   );
 }
@@ -38,7 +38,7 @@ export function EmptyState({ title, hint }: { title: string; hint: string }) {
   return (
     <div className="rounded-lg border border-dashed border-deep/25 bg-surface p-6 text-center">
       <p className="text-body font-semibold text-deep">{title}</p>
-      <p className="mt-1 text-small text-deep/80">{hint}</p>
+      <p className="mt-1 text-small text-deep/90">{hint}</p>
     </div>
   );
 }
