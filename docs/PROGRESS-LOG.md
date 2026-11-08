@@ -195,3 +195,91 @@
 - Verifikasi: `pnpm typecheck` + `pnpm lint` hijau; `/`, `/masuk`, `/panel/masuk` HTTP 200 di 1280 px dan 390 px; buffer kanvas sama dengan kotak CSS-nya di ketiga halaman (747×428 / 1280×900 / 390×844); `overflowX = 0`; tidak ada error runtime; elemen `[data-motion]` yang ada di layar tersembunyi = 0 (atas maupun setelah digulir 5400 px); dengan `prefers-reduced-motion: reduce` elemen tersembunyi = 0 dan kanvas tetap tampil. Catatan lama soal reduced-motion yang belum bisa diukur kini tertutup.
 - Cache webpack dev sempat rusak (`invalid code lengths set`, `ENOENT … .pack.gz_`) setelah beberapa penulis menyentuh `.next`; dibersihkan dengan menghapus `.next` lalu menjalankan `pnpm dev` sekali saja.
 - `.agents/`, `.claude/`, `.hermes/` dimasukkan ke `.gitignore` (bundel skill pihak ketiga tidak ikut repo publik); `skills-lock.json` tetap di-commit supaya pemasangan skill dapat diulang.
+
+## 2026-11-08 — Penyuntingan naskah landing page (gaya copywriter)
+
+- Seluruh teks `src/components/landing/landing-page.tsx` diaudit dan ditulis ulang: hero, bukti, contoh beranda, masalah, fitur, analisis AI, cara kerja, jenis usaha, keamanan, FAQ, ajakan terakhir, footer, plus judul/deskripsi metadata di `src/app/layout.tsx`.
+- Istilah diseragamkan dengan yang dipakai aplikasi (dihitung dari sumber: "Pendapatan" 14×, "Pengeluaran" 14×, "Utang" 12×, "Piutang" 5×): "uang masuk/keluar" dan satu-satunya "Pemasukan" diganti "pendapatan/pengeluaran", rumus saldo jadi "Saldo awal + pendapatan − pengeluaran".
+- Frasa yang terasa AI/generik diganti: "Bukan sekadar mencatat keuangan" → "Catat keuangan usahamu", "Masalahnya bukan mencatat. Masalahnya memahami." → "Sudah mencatat, tetapi belum memahami", "Yang benar-benar kamu pakai setiap hari" → "Fitur yang membantu operasional usahamu setiap hari", "Catat transaksi tanpa ribet" → "Catat pendapatan dan pengeluaran dengan mudah", "AI yang membaca angkamu, bukan menebak" → "Analisis keuangan berdasarkan data usahamu", "Keuanganmu bukan bahan latihan" → "Cara kami menjaga data keuanganmu", "Ke mana uang keluar bulan ini" → "Rincian pengeluaran bulan ini".
+- CTA diseragamkan untuk satu tujuan yang sama (`/daftar`): header "Coba gratis", hero "Mulai gratis", penutup "Daftar sekarang" → semuanya "Mulai gratis"; FAQ "Bisakah memindahkan catatan lama?" → "…dari spreadsheet lama?".
+- Klaim dilunakkan agar bisa dipertahankan: "Pendapatan akhir pekan konsisten lebih tinggi" → "cenderung lebih tinggi"; "Kurang dari lima menit" di langkah 1 dihapus; penjelasan teknis internal ("lewati validasi backend") diganti bahasa pengguna ("diperiksa di server").
+- Verifikasi: `pnpm typecheck` + `pnpm lint` hijau; teks lama tidak tersisa (grep: "tanpa ribet", "Coba gratis", "Ke mana uang keluar", "bukan menebak", "bukan bahan latihan", "Daftar sekarang" = 0 kemunculan); 13 frasa baru terbukti muncul di HTML `/`; di browser 1440 px dan 375 px `overflowX = 0`, tidak ada teks terpotong (`scrollWidth > clientWidth` = 0 elemen), reveal `[data-motion]` yang ada di layar tersembunyi = 0; kontras caption hero 5,8:1 (rgb(44,104,123) di rgb(255,246,246)) lolos AA.
+- Catatan: perubahan ini belum di-commit.
+
+## 2026-11-08 — Foto UMKM, latar bagian bervariasi, ikon solid, dan efek gulir berlapis
+
+- Hero landing memakai foto UMKM (`/images/umkm/kopi.webp`, pedagang kopi tarik) sebagai latar dengan dua lapis gelap (`from-[#06171D]/96 via-[#0B2229]/90 to-[#123039]/72` + pendar bawah). Teks hero jadi putih, sorotan judul memakai aksen baru.
+- Halaman masuk memakai foto UMKM juga: `/masuk` → `jajanan.webp`, `/panel/masuk` → `pasar.webp`, keduanya dengan lapisan gelap 84–90% dan `isolate` supaya latar tidak tertutup warna kontainer panel.
+- Token warna baru `--color-gold: #e0a21b` sebagai aksen pengisi (garis kemajuan gulir, sorotan judul hero, label pita foto, ikon centang daftar bukti). Diberi catatan di `globals.css` bahwa gold tidak dipakai untuk teks di latar terang karena kontrasnya di bawah AA.
+- Latar bagian landing dibuat bervariasi, semuanya dari token yang ada: hero gelap + foto, "Masalah" gradient `white → surface`, "Fitur" `primary/10` (pink), "Analisis" gelap `#123039`, "Lapisan" `deep/10` (teal), "Cara kerja" putih, "Jenis usaha" gradient `surface → white`, "Keamanan" `plum/10`, pita foto gelap, FAQ `cobalt/10`, penutup CTA blok merah.
+- Ikon kini lencana solid: komponen `IconBadge` (kotak `rounded-xl` warna token + glif putih) menggantikan ikon garis. Dipakai di daftar fitur (6 warna: primary/deep/ochre/cobalt/moss/plum), bagian keamanan (deep/cobalt/moss/plum), dan ikon X/centang di bagian masalah. Total 22 lencana.
+- Efek gulir berlapis: bagian baru `Lapisan` (3 kartu sticky + foto jajanan/anyaman/pasar, membesar mengikuti scrub) dan pita foto selebar layar dengan parallax di dalam bingkai (`data-band-image`, `yPercent −7 → 7`). Kartu contoh beranda di hero memakai `data-popup` (skala 0,94 → 1). Ditambah garis kemajuan gulir gradasi gold→primary→deep di puncak halaman.
+- Semua efek tetap di dalam `gsap.matchMedia("(prefers-reduced-motion: no-preference)")`; tanpa JavaScript kartu lapisan tetap tampil datar dan bisa dibaca.
+- Verifikasi kontras dengan mengukur piksel: potret diambil dua kali (teks tampil vs teks disembunyikan `visibility:hidden`), lalu PNG didekode dengan stdlib (`zlib`) untuk menghitung kontras terburuk per kotak teks. Hasil: hero landing 14,4:1 (judul) dan 11,7:1 (paragraf), caption hero 10,5:1, tagline `/masuk` 9,5:1, label `/panel/masuk` 10,2:1, teks dalam kartu 5,0–5,3:1 — semuanya lolos AA. Skrip pengukurnya di cache kerja, bukan di repo.
+- Verifikasi tata letak: `/`, `/masuk`, `/panel/masuk` HTTP 200; di 1440 px dan 375 px `overflowX = 0` dan tidak ada teks terpotong; 22 lencana tampil; elemen `[data-motion]` di layar tersembunyi = 0; dengan `prefers-reduced-motion: reduce` tidak ada elemen tersembunyi dan 3 kartu lapisan tetap dirender.
+- Tidak ada aset baru yang diunduh: tiga foto UMKM yang tadinya belum terpakai (`kopi`, `jajanan`, `anyaman`) sekarang dipakai, dan `background1.jpg` bergeser dari latar login (diganti foto UMKM) menjadi tekstur pita foto.
+- Latar partikel WebGL dihapus atas permintaan: komponen `src/components/ambient-canvas.tsx` dihapus beserta tiga pemakaiannya (hero landing, `/masuk`, `/panel/masuk`) dan token `MOTION.canvasSpin`. Dependensi `three` + `@types/three` masih terpasang tetapi tidak lagi diimpor — hapus dengan `pnpm remove three @types/three` bila tidak dipakai lagi.
+- Naskah hero diganti: judul "Website penyedia manajemen kas usaha dengan AI" (frasa kedua tetap disorot gold), paragraf menjelaskan peran AI di dalam kas ("apa yang berubah, apa yang perlu diperiksa lebih dulu, dan angka apa yang jadi dasarnya"). Tagline `/masuk` memakai kalimat yang sama.
+- Daftar bukti di hero: tanda centang sekarang lencana kotak solid dengan empat warna berbeda (primary/ochre/moss/plum, 28 px, glif centang putih stroke 3) — sebelumnya centang garis berwarna tunggal.
+- Verifikasi: `pnpm typecheck` + `pnpm lint` hijau; di browser terukur `h1` = "Website penyedia manajemen kas usaha dengan AI", 4 lencana 28 px berwarna rgb(219,26,26) / rgb(138,90,21) / rgb(79,116,87) / rgb(122,75,107), jumlah `<canvas>` = 0, `overflowX = 0` di 1440 px dan 375 px.
+- Catatan: `landing-page.tsx` sempat berubah dari luar sesi ini pada 17:16:52 (judul, paragraf, dan microcopy ditulis ulang versi lain); naskah sesuai permintaan terakhir sudah dipasang ulang di atasnya. Kalau ada editor lain yang menyunting file yang sama, perubahan bisa saling menimpa.
+- Catatan: perubahan ini belum di-commit.
+
+## 2026-11-08 — Audit desain landing + pass pertama ke arah premium
+
+- Audit terukur sebelum perubahan: tinggi dokumen 8.124 px (9 layar) dengan 11 bagian; judul hero hanya 36 px tanpa pengaturan tracking; 9 judul bagian semuanya 30 px; 34 elemen bersudut membulat, 17 bayangan, 22 lencana ikon, dan **8 warna latar bagian berbeda** — kombinasi yang membuat halaman terbaca seperti template, bukan produk.
+- Skala tipografi dibuat cair (`--text-mega: clamp(2.75rem, 5.4vw, 4.75rem)` + `--text-display`/`--text-h1` clamp, tracking −0.02/−0.03em). Terukur: judul hero 76 px di 1440 (sebelumnya 36) dan 44 px di 390.
+- Hero disusun ulang jadi komposisi tengah editorial: eyebrow berbentuk pil, judul tiga baris terkontrol (bukan pembungkusan liar), paragraf, dua tombol, microcopy, lalu daftar bukti tanpa garis ornamen — dan produk ditampilkan sebagai objek.
+- Objek 3D: komponen baru `src/components/tilt-frame.tsx` (perspective 1400 px, `quickTo` GSAP, hanya untuk `pointer: fine`, mati saat reduced-motion). Bingkai produk miring mengikuti penunjuk (terukur matrix3d dengan rotasi ±3°) dan kartu "Insight AI" melayang di depannya dengan `translateZ(60px)`.
+- Foto hero dibuat monokrom (`grayscale contrast-125`) supaya bokeh ungu/magenta bawaan foto tidak bertabrakan dengan palet; hasil ukur `filter: contrast(1.25) grayscale(1)`.
+- Tekstur: lapisan butiran (`grain`) 3,5% di seluruh halaman — memberi kesan cetak dan menghilangkan bidang putih yang terlalu bersih.
+- Warna latar bagian dikurangi dari 8 varian menjadi 4 keluarga (putih, surface, gelap, blok merah) dan jarak antarbagian dinaikkan (`py-24`/`py-32`).
+- Verifikasi: `pnpm typecheck` + `pnpm lint` hijau; 1440 px dan 390 px `overflowX = 0`, tidak ada teks terpotong; hero terukur 76 px / 44 px; bingkai 3D dan kartu insight melayang ada di DOM dan bertransformasi saat penunjuk bergerak.
+- Keputusan pengguna: judul hero memakai varian SEO yang lebih tajam — "Manajemen kas usaha / dengan AI / untuk UMKM" (tiga baris, frasa tengah menyala gold), tagline `/masuk` dan `metadata.title` disamakan. Blok bukti bersosial menunggu angka nyata dari pengguna; sementara itu daftar bukti fitur dipertahankan (tanpa mengarang angka).
+- Yang masih terbuka (jujur): belum ada bukti sosial di hero; foto latar tetap stok yang digelapkan, bukan foto kas/transaksi; tanpa produk interaktif di atas lipatan (mockup masih gambar).
+
+## 2026-11-08 — Landing mengikuti gaya "console/document" (referensi Meridian)
+
+- Referensi `meridian-nextjs-template.vercel.app` dibedah dulu lewat browser: font DM Sans + Space Grotesk + JetBrains Mono, kanvas `lab(2.75)` (near-black), judul 48 px weight 600 tracking −1.2 px, label mikro 7,2–11 px monospace, radius mayoritas 0–6 px, garis rambut `rgba(255,255,255,0.1–0.3)`, tinggi halaman 14.543 px.
+- Font baru: JetBrains Mono (`--font-jetbrains` → token `--font-mono`) untuk semua label, metadata, dan angka teknis. Body tetap Plus Jakarta Sans. Terukur 138 elemen memakai monospace di halaman.
+- Token baru di `globals.css`: `--color-canvas #0a0f12` dan `--color-line rgba(255,255,255,0.12)`. Seluruh landing kini satu kanvas gelap; latar bagian berwarna-warni (8 varian) dihapus, diganti garis rambut di setiap batas bagian.
+- Komponen baru `Section`: baris anotasi `§ NN / nama` di kiri dan metadata di kanan (monospace 11 px, tracking 0.16em), judul 5 kolom + deskripsi 7 kolom. Semua bagian memakai kerangka ini.
+- Radius diperkecil ke 4–6 px (pil hanya untuk badge kecil), semua teks putih dengan opasitas sebagai hierarki, aksen tunggal gold, CTA merah brand, tombol nav putih.
+- Lencana ikon berwarna solid dibuang; ikon kembali monoline dengan warna aksen (gold) seperti bahasa console.
+- Foto hero dibuat monokrom dengan topeng radial (`mask-image: radial-gradient`) supaya hanya tepi yang bertekstur dan bagian tengah bersih; foto jenis usaha dan pita foto juga monokrom.
+- Produk (contoh beranda) jadi panel console: header monospace `beranda.usaha · data contoh` + `1 / 1`, angka tabular, bilah 1 px tanpa sudut, footer data contoh bergaris rambut.
+- Verifikasi: `pnpm typecheck` + `pnpm lint` hijau; `/`, `/masuk`, `/panel/masuk` HTTP 200; kanvas terukur `rgb(10, 15, 18)`; label mono 11 px berukuran dan berfont JetBrains; kontras label diukur dari piksel (potret ganda teks tampil vs teks disembunyikan) = 6,0:1 untuk seluruh label, lolos AA; `overflowX = 0` di 1440 px dan 390 px; judul hero 76 px (1440) dan 44 px (390).
+- Catatan: gaya ini baru diterapkan di landing. `/masuk` dan `/panel/masuk` masih memakai foto terang dengan lapisan gelap; `docs/DESIGN.md` belum diperbarui (masih menyebut palet terang sebagai dasar).
+- Catatan: perubahan ini belum di-commit.
+
+## 2026-11-08 — Revisi landing: tema cerah, hero berputar, foreground, highlight per bagian
+
+- Tema dikembalikan ke cerah: latar `bg-surface` (rgb 255,246,246), teks ink, garis rambut `deep/10–12`, aksen teks `ochre` (amber gelap) karena gold gagal kontras di latar terang; gold hanya untuk isian batang dan titik dekorasi.
+- Hero: panel kaca (`bg-white/85` + `backdrop-blur-md`) memuat judul tiga baris dan seluruh teks, jadi kontras tidak bergantung pada gambar yang berganti. Latar hero memakai slideshow 3 foto UMKM (kopi, jajanan, pasar) yang silang-ganti tiap 6 detik dengan fade 1,4 detik (`MOTION.slideHold`, `MOTION.slideFade`), tanpa blur. Sisi kanan foto dibiarkan jernih; kiri ditutup gradasi surface.
+- Slideshow diperbaiki agar berjalan per grup (`[data-hero-group]`): versi pertama memakai satu timeline untuk semua gambar sehingga tiap grup saling menimpa dan gambar pertama langsung pudar. Terukur sekarang: satu gambar terlihat per grup pada tiap saat, urutan berputar 1 → 2 → 3 → 1.
+- Foreground: bagian Analisis memuat foto anyaman yang keluar dari alur kolom (19 rem, `-ml-4`, bayangan dalam) dengan animasi `[data-foreground]` yang bergerak lebih cepat dari bagiannya saat digulir — terbaca sebagai lapisan depan.
+- Highlight per bagian: angka besar sebagai tanda air (`[data-numeral]`, 9rem/14rem, `deep/6`, parallax lembut), garis aksen gold→primary yang memanjang saat bagian masuk (`[data-rule]`, scaleX 0→1 scrub), judul bermask (`[data-mask]` + `[data-mask-line]`, yPercent 110→0, expo.out), dan klip panel (`[data-clip]`, inset 14%/6% → 0, scrub) untuk panel produk serta blok CTA.
+- Kontras teks kecil dinaikkan: `text-deep/60` → `/80` dan `/70` → `/85` untuk meta, caption, microcopy, dan label.
+- Verifikasi: `pnpm typecheck` + `pnpm lint` hijau; `/` dan `/masuk` HTTP 200; latar terukur `rgb(255, 246, 246)`; 3 gambar slideshow dalam satu grup hero yang opasitasnya bergiliran (terbukti berubah antar pengamatan); 1 elemen foreground (304×343 px), 9 tanda air angka, 8 garis aksen, 8 judul bermask, 2 panel klip; `overflowX = 0` di 1440 px dan 390 px.
+- Kontras hero dihitung dari batas terburuk komposisi: panel `bg-white/85` di atas foto apa pun menghasilkan latar ≥ 85% putih, sehingga teks ink (#1a1a1a) ≈ 17:1 dan deep (#2c687b) ≈ 6,9:1 — lolos AA tanpa bergantung frame foto. (Pengukuran piksel untuk panel ini gagal karena koordinat rect dan skala potret tidak sepadan, jadi angka analitis dipakai, bukan hasil sampling.)
+- Catatan: `/masuk` dan `/panel/masuk` belum ikut tema cerah ini; `docs/DESIGN.md` belum diperbarui.
+- Catatan: perubahan ini belum di-commit.
+
+## 2026-11-08 — Revisi hero & pengantar (putaran 2)
+
+- Hero: eyebrow "Manajemen kas · UMKM Indonesia" dan label "foto UMKM · berganti otomatis" dihapus. Judul jadi tiga baris — "Platform Keuangan dan" 76 px, "Analisis Bisnis Berbasis AI" 0,82 em (62 px) warna primary, "untuk UMKM" 0,55 em (42 px) bold. CTA jadi "Mulai **Gratis**" dengan kata terakhir `font-bold`. Paragraf baru: mencatat transaksi, memahami kondisi keuangan, memantau utang-piutang, rekomendasi dari data aktual.
+- Foto hero berhenti sebelum kartu produk: slideshow dibungkus bidang sendiri (`mx-auto max-w-6xl`, sudut membulat) setinggi panel + strip fakta; kartu "beranda.usaha" duduk di luar bidang itu, terukur 92 px di bawahnya.
+- Ketajaman: biang kekeruhan bukan kompresi — `jajanan.webp` punya depth of field dangkal dan `kopi.webp` blur gerak pada aliran kopi. Urutan slide diubah (pasar → kopi → jajanan) agar frame pertama tajam; `sizes` disetel `(min-width: 1200px) 1152px, 100vw` dan `quality={92}` supaya varian yang diminta tidak melebihi lebar asli 1200 px (sebelumnya bidang 1375 px memaksa upscale 1,19×, sekarang 1:1). `next.config.ts` mendapat `images.qualities: [75, 92]` (syarat Next 16).
+- "§" dihapus dari semua judul bagian (anotasi `sumber angka` dan `mulai`), `Section` kini hanya menampilkan baris anotasi bila `index` + `name` diisi, dan tinggi bantalan mengecil saat bagian tidak punya isi tambahan.
+- Pengantar "masalah" jadi blok naratif: tiga paragraf besar (43 px, measure 62ch, lebar terukur 1104 px dari kontainer 1152 px) dengan animasi kata menyala `[data-run-opacity]` — tiap kata mulai 30% opasitas lalu naik ke 100% mengikuti gulir (`stagger 0.5`, `scrub 0.4`, rentang `top 80%` → `bottom 65%`). Terukur: di atas layar 0,30 untuk semua kata; setelah masuk layar kata awal 1,00 dan kata akhir masih 0,30; setelah digulir lagi kata akhir ikut 1,00.
+- Dihapus dari bagian itu: empat kartu sumber (Buku tulis, Excel, Google Sheets, Aplikasi pencatatan) dan empat baris masalah 01–04 beserta teksnya. Ikon `BookOpen`, `FileSpreadsheet`, `Table2`, `Smartphone`, `X` ikut dilepas dari impor.
+- Verifikasi: `pnpm typecheck` + `pnpm lint` hijau; `/`, `/masuk`, `/panel/masuk` HTTP 200; bagian pengantar 0 `li`; `overflowX = 0` di 1440 px; dev server di-restart bersih (`.next` dihapus) setelah permintaan `/panel` sempat 92 detik.
+- Catatan: perubahan ini belum di-commit.
+
+## 2026-11-08 — Logo merek di kalimat pengantar
+
+- Logo resmi Excel (`Microsoft Office Excel (2013–2019).svg`) dan Google Sheets (`Google Sheets 2020 Logo.svg`) dari Wikimedia Commons disimpan di `public/logos/` (2,7 KB + 0,5 KB, lisensi merek — dipakai sebagai rujukan nominatif).
+- Komponen `Brand` menaruh logo inline di kalimat ("buku tulis, ▣ Excel, ▣ Google Sheets, atau aplikasi pencatatan sederhana") dengan tinggi `0.78em` dan `translate-y-[0.06em]` supaya duduk sejajar huruf kapital; `<img>` biasa dengan penonaktifan aturan `no-img-element` karena SVG tidak perlu optimasi Next.
+- Logo ikut animasi kata menyala (diberi `data-run-opacity-word`), jadi opasitasnya seirama dengan teks. Terukur: logo 34×34 px dan 25×34 px pada teks 43 px, `line-height` tetap 54 px, paragraf tetap 3 baris.
+- Verifikasi: `pnpm typecheck` + `pnpm lint` hijau; `/logos/excel.svg` dan `/logos/google-sheets.svg` dilayani 200 `image/svg+xml`; kedua gambar `naturalWidth > 0` di browser.
+- Catatan: perubahan ini belum di-commit.
