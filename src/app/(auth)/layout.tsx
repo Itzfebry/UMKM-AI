@@ -4,7 +4,7 @@ import { ScreenIntro } from "@/components/screen-intro";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-[#071318] px-4 py-10">
+    <main className="relative isolate flex h-dvh flex-col items-center justify-center overflow-hidden bg-[#071318] px-4 py-10">
       <AuthAurora />
 
       {/* Tanda air monogram raksasa: kedalaman latar tanpa menambah gambar. */}
@@ -29,8 +29,22 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         <div
           data-intro
-          className="price-glow relative w-full max-w-md rounded-[28px] border border-white/15 bg-white/[0.97] p-6 shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:p-8"
+          className="price-glow relative isolate w-full max-w-md rounded-[28px] border border-white/15 bg-white/[0.97] p-6 shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:p-8"
         >
+          {/* Hiasan kartu: dua cahaya lembut di sudut + garis emas setipis rambut di tepi atas. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -z-10 -right-8 -top-10 size-32 rounded-full bg-gold/25 blur-2xl"
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -z-10 -bottom-12 -left-10 size-36 rounded-full bg-primary/15 blur-2xl"
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-x-10 -top-px h-px bg-gradient-to-r from-transparent via-gold to-transparent"
+          />
+
           {children}
         </div>
 
