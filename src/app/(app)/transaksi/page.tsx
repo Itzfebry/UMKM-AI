@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader, EmptyState, input, btn } from "@/components/ui";
 import { TransactionForm } from "@/components/transaction-form";
-import { formatDate, formatRupiah } from "@/lib/format";
+import { formatDate, formatDateTime, formatRupiah } from "@/lib/format";
 import { requireBusiness } from "@/server/lib/access";
 import { getCategories, listTransactions } from "@/server/modules/ledger/queries";
 import { TYPE_LABEL, type TransactionType } from "@/server/modules/ledger/types";
@@ -145,6 +145,10 @@ export default async function TransaksiPage({ searchParams }: { searchParams: Pr
                     <p className="text-caption text-deep/75">
                       {formatDate(t.transactionDate)} · {TYPE_LABEL[t.type]}
                       {t.categoryName ? ` · ${t.categoryName}` : ""}
+                    </p>
+                    <p className="text-caption text-deep/65">
+                      dicatat {formatDateTime(t.createdAt)}
+                      {t.updatedAt.getTime() > t.createdAt.getTime() ? ` · diubah ${formatDateTime(t.updatedAt)}` : ""}
                     </p>
                     {t.deletedAt ? (
                       <p className="text-caption text-primary">Dihapus{t.deletedReason ? `: ${t.deletedReason}` : ""}</p>

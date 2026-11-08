@@ -36,17 +36,20 @@ export function periodResetLabel() {
   return new Intl.DateTimeFormat("id-ID", { dateStyle: "long", timeZone: "UTC" }).format(next);
 }
 
+/** Paket efektif dari baris langganan: Pro mengikat selama statusnya masih berlaku. */
+export function effectivePlan(input: { plan: Plan; status: string; currentPeriodEnd: Date | null }): Plan {
+  const binding = input.plan === "pro" && (input.status === "active" || input.status === "cancel_at_period_end" || input.status === "grace_period");
+  const periodEnd = input.currentPeriodEnd?.getTime() ?? 0;
+  return binding && periodEnd + GRACE_DAYS * DAY > Date.now() ? "pro" : "free";
+}
+
 /**
  * Paket efektif. Pro hanya berlaku bila statusnya masih mengikat; sesudah periode
  * berbayar berakhir masih ada masa tenggang 7 hari (FR-SUB-16), lalu kembali ke Free.
  */
 export async function getPlanState(businessId: string) {
   const [row] = await db.select().from(subscriptions).where(eq(subscriptions.businessId, businessId)).limit(1);
-  const now = Date.now();
-  const periodEnd = row?.currentPeriodEnd?.getTime() ?? 0;
-  const binding =
-    row?.plan === "pro" && (row.status === "active" || row.status === "cancel_at_period_end" || row.status === "grace_period");
-  const plan: Plan = binding && periodEnd + GRACE_DAYS * DAY > now ? "pro" : "free";
+  const plan: Plan = row ? effectivePlan({ plan: row.plan, status: row.status, currentPeriodEnd: row.currentPeriodEnd }) : "free";
 
   const [[txUsed], [aiUsed]] = await Promise.all([
     db

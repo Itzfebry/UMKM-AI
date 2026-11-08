@@ -4,13 +4,14 @@ import { hash } from "@node-rs/argon2";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
-import { and, count, eq, gte, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { signIn, signOut, auth } from "@/auth";
 import { db } from "@/server/db";
 import { auditEvents, loginAttempts, users } from "@/server/db/schema";
 import { appUrl, sendEmail } from "@/server/lib/email";
+import { LOGIN_WINDOW_MINUTES, MAX_FAILURES, recentFailures } from "@/server/lib/login-throttle";
 import { consumeToken, findTokenRowByToken, issueToken, resetIdentifier, verifyIdentifier } from "./tokens";
 
 export type FormState = { error?: string; ok?: boolean; info?: string } | undefined;
@@ -21,21 +22,9 @@ const registerSchema = z.object({
   password: z.string().min(8, "Kata sandi minimal 8 karakter.").max(72),
 });
 
-const LOGIN_WINDOW_MINUTES = 15;
-const MAX_FAILURES = 5;
-
 async function clientIp() {
   const store = await headers();
   return store.get("x-forwarded-for")?.split(",")[0]?.trim() ?? store.get("x-real-ip") ?? null;
-}
-
-async function recentFailures(email: string) {
-  const since = new Date(Date.now() - LOGIN_WINDOW_MINUTES * 60_000);
-  const [row] = await db
-    .select({ total: count() })
-    .from(loginAttempts)
-    .where(and(eq(loginAttempts.email, email), eq(loginAttempts.success, false), gte(loginAttempts.createdAt, since)));
-  return Number(row?.total ?? 0);
 }
 
 export async function register(_prev: FormState, formData: FormData): Promise<FormState> {

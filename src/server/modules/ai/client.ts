@@ -28,7 +28,9 @@ export type AiCallInput = {
   systemExtra?: string;
 };
 
-export type AiCallResult = { ok: true; answer: AiAnswer } | { ok: false; error: string };
+export type AiUsage = { prompt: number; completion: number; total: number };
+
+export type AiCallResult = { ok: true; answer: AiAnswer; usage?: AiUsage } | { ok: false; error: string };
 
 /** Ambil objek JSON pertama walau model membungkusnya dengan pagar markdown. */
 function extractJson(content: string) {
@@ -75,12 +77,20 @@ export async function callAiJson(input: AiCallInput): Promise<AiCallResult> {
       return { ok: false, error: `Layanan AI menolak permintaan (${response.status}): ${body.slice(0, 200)}` };
     }
 
-    const payload = JSON.parse(body) as { choices?: { message?: { content?: string } }[] };
+    const payload = JSON.parse(body) as {
+      choices?: { message?: { content?: string } }[];
+      usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+    };
     const content = payload.choices?.[0]?.message?.content ?? "";
     if (!content.trim()) return { ok: false, error: "Layanan AI mengirim jawaban kosong." };
 
+    // Pemakaian token dicatat untuk pemantauan panel platform (biaya dihitung di luar).
+    const usage = payload.usage
+      ? { prompt: payload.usage.prompt_tokens ?? 0, completion: payload.usage.completion_tokens ?? 0, total: payload.usage.total_tokens ?? 0 }
+      : undefined;
+
     try {
-      return { ok: true, answer: answerSchema.parse(JSON.parse(extractJson(content))) };
+      return { ok: true, answer: answerSchema.parse(JSON.parse(extractJson(content))), usage };
     } catch {
       return { ok: false, error: "Jawaban AI tidak bisa dibaca sebagai JSON." };
     }

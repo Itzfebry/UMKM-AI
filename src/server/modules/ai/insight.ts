@@ -97,7 +97,7 @@ async function generateInsight(
         set: { requests: sql`${aiUsage.requests} + 1`, updatedAt: new Date() },
       });
 
-    await log("sukses", started);
+    await log("sukses", started, { usage: result.usage });
     return { ok: true, insight, createdAt };
   } catch (error) {
     await log("gagal", started, { error: error instanceof Error ? error.message.slice(0, 160) : "tidak dikenal" });

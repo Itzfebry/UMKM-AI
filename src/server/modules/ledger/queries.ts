@@ -59,6 +59,9 @@ export async function listTransactions(businessId: string, filters: TransactionF
         deletedAt: transactions.deletedAt,
         deletedReason: transactions.deletedReason,
         categoryName: categories.name,
+        // Waktu sistem sampai detik: dipakai daftar transaksi untuk membedakan catatan bersamaan.
+        createdAt: transactions.createdAt,
+        updatedAt: transactions.updatedAt,
       })
       .from(transactions)
       .leftJoin(categories, eq(categories.id, transactions.categoryId))

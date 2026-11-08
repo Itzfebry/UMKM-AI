@@ -1,25 +1,26 @@
-import Link from "next/link";
-import { adminLogout } from "@/server/modules/platform/actions";
+import { eq } from "drizzle-orm";
+import { PanelMobileNav, PanelSidebar } from "@/components/panel-nav";
+import { requireAdminSession } from "@/admin-auth";
+import { db } from "@/server/db";
+import { platformAdmins } from "@/server/db/schema";
 
-export default function PanelLayout({ children }: { children: React.ReactNode }) {
+export default async function PanelLayout({ children }: { children: React.ReactNode }) {
+  const admin = await requireAdminSession();
+
+  // Halaman masuk panel tidak memakai kerangka sidebar.
+  if (!admin) {
+    return <div className="grid min-h-dvh place-items-center bg-[#F7F5F4] px-4 py-10">{children}</div>;
+  }
+
+  const [row] = await db.select({ mfaEnabled: platformAdmins.mfaEnabled }).from(platformAdmins).where(eq(platformAdmins.userId, admin.id)).limit(1);
+
   return (
-    <div className="min-h-dvh bg-[#F7F5F4]">
-      <header className="border-b border-deep/10 bg-white">
-        <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex items-baseline gap-2">
-            <Link href="/panel" className="text-h3 font-bold text-primary">
-              UMKM-AI
-            </Link>
-            <span className="text-small text-deep/70">Panel platform</span>
-          </div>
-          <form action={adminLogout}>
-            <button type="submit" className="min-h-11 text-small font-semibold text-deep hover:underline">
-              Keluar
-            </button>
-          </form>
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6">{children}</main>
+    <div className="min-h-dvh bg-[#F7F5F4] lg:flex">
+      <PanelSidebar email={admin.email ?? null} mfaEnabled={Boolean(row?.mfaEnabled)} />
+      <div className="min-w-0 flex-1">
+        <PanelMobileNav />
+        <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6">{children}</main>
+      </div>
     </div>
   );
 }

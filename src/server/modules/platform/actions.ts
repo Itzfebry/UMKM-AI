@@ -8,15 +8,22 @@ import { AuthError } from "next-auth";
 import { adminSignIn, adminSignOut, requireAdminSession } from "@/admin-auth";
 import { db } from "@/server/db";
 import { auditEvents, loginAttempts, platformAdmins, users } from "@/server/db/schema";
+import { LOGIN_WINDOW_MINUTES, MAX_FAILURES, recentFailures } from "@/server/lib/login-throttle";
 import { generateTotpSecret, otpauthUrl, verifyTotp } from "@/server/lib/totp";
+import { toDataURL } from "qrcode";
 
 export type AdminLoginState = { error?: string } | undefined;
-export type AdminState = { error?: string; ok?: boolean; info?: string; otpauth?: string } | undefined;
+export type AdminState = { error?: string; ok?: boolean; info?: string; otpauth?: string; qr?: string } | undefined;
 
 export async function adminLogin(_prev: AdminLoginState, formData: FormData): Promise<AdminLoginState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const store = await headers();
   const ip = store.get("x-forwarded-for")?.split(",")[0]?.trim() ?? store.get("x-real-ip") ?? null;
+
+  // Panel tidak punya sesi pengguna sebagai batas kedua, jadi percobaan gagal dibatasi di sini.
+  if (email && (await recentFailures(email)) >= MAX_FAILURES) {
+    return { error: `Terlalu banyak percobaan gagal. Coba lagi setelah ${LOGIN_WINDOW_MINUTES} menit.` };
+  }
 
   try {
     await adminSignIn("credentials", {
@@ -51,7 +58,9 @@ export async function startMfaEnrollment(): Promise<AdminState> {
     .onConflictDoUpdate({ target: platformAdmins.userId, set: { mfaSecret: secret, mfaEnabled: false } });
 
   revalidatePath("/panel");
-  return { otpauth: otpauthUrl(secret, admin.email ?? admin.id) };
+  const otpauth = otpauthUrl(secret, admin.email ?? admin.id);
+  // QR digambar di server: secret tidak boleh dikirim ke layanan pihak ketiga.
+  return { otpauth, qr: await toDataURL(otpauth, { margin: 1, width: 224 }) };
 }
 
 export async function enableMfa(_prev: AdminState, formData: FormData): Promise<AdminState> {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { formatRupiah } from "@/lib/format";
+import { formatDateTime, formatRupiah } from "@/lib/format";
 import { requireBusiness, requireRole } from "@/server/lib/access";
 import { listDebtAudit, listTransactionAudit } from "@/server/modules/audit/queries";
 
@@ -12,9 +12,6 @@ const ACTION_LABEL: Record<string, string> = {
   delete: "Dihapus",
   restore: "Dipulihkan",
 };
-
-const stamp = (date: Date) =>
-  new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" }).format(date);
 
 export default async function RiwayatPage() {
   const { user, business } = await requireBusiness();
@@ -43,7 +40,7 @@ export default async function RiwayatPage() {
                     {ACTION_LABEL[row.action] ?? row.action} · {row.note || row.type || "(transaksi)"}
                   </p>
                   <p className="text-caption text-deep/70">
-                    {stamp(row.createdAt)} WIB · oleh {row.actor ?? "sistem"} · nominal {formatRupiah(row.amount ?? 0)}
+                    {formatDateTime(row.createdAt)} · oleh {row.actor ?? "sistem"} · nominal {formatRupiah(row.amount ?? 0)}
                     {row.transactionDate ? ` · tanggal ${row.transactionDate}` : ""}
                   </p>
                   <p className="text-caption text-deep/60">
@@ -70,7 +67,7 @@ export default async function RiwayatPage() {
                   {ACTION_LABEL[row.action] ?? row.action} · {row.counterparty ?? "(catatan dihapus)"}
                 </p>
                 <p className="text-caption text-deep/70">
-                  {stamp(row.createdAt)} WIB · oleh {row.actor ?? "sistem"} · nominal {formatRupiah(row.amount ?? 0)}
+                  {formatDateTime(row.createdAt)} · oleh {row.actor ?? "sistem"} · nominal {formatRupiah(row.amount ?? 0)}
                   {row.reason ? ` · alasan: ${row.reason}` : ""}
                 </p>
               </li>

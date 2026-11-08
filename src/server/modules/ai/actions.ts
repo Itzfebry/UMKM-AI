@@ -99,7 +99,15 @@ Pertanyaan pemilik usaha: ${question}`,
     businessId: business.id,
     actorId: user.id,
     type: "ai",
-    metadata: { model, period, status: "sukses", durationMs: Date.now() - started, kind: "tanya_jawab", question: question.slice(0, 200) },
+    metadata: {
+      model,
+      period,
+      status: "sukses",
+      durationMs: Date.now() - started,
+      kind: "tanya_jawab",
+      question: question.slice(0, 200),
+      usage: result.usage,
+    },
   });
 
   return { question, answer, meta: { model, period, durationMs: Date.now() - started } };
