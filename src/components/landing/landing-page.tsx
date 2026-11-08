@@ -19,6 +19,7 @@ import {
 import type { ComponentType, ReactNode } from "react";
 import { TiltFrame } from "@/components/tilt-frame";
 import { LandingMotion } from "./landing-motion";
+import { CookieConsent } from "@/components/cookie-consent";
 
 /*
  * Tema cerah: latar surface/putih, teks ink, garis rambut deep, label monospace huruf kapital.
@@ -27,11 +28,14 @@ import { LandingMotion } from "./landing-motion";
  */
 
 const NAV = [
+  { href: "#masalah", label: "Masalah" },
+  { href: "#pengguna", label: "Cocok untuk" },
   { href: "#fitur", label: "Fitur" },
   { href: "#analisis", label: "Analisis AI" },
   { href: "#cara-kerja", label: "Cara kerja" },
   { href: "#keamanan", label: "Keamanan" },
   { href: "#faq", label: "FAQ" },
+  { href: "#harga", label: "Harga" },
 ];
 
 /** Foto UMKM yang berganti bergiliran di latar hero. */
@@ -70,6 +74,10 @@ function Section({
   desc,
   intro,
   children,
+  className,
+  dark,
+  center,
+  hideRule,
 }: {
   id?: string;
   index?: string;
@@ -80,19 +88,27 @@ function Section({
   /** Isi pengantar khusus; menggantikan judul + deskripsi bila diisi. */
   intro?: ReactNode;
   children?: ReactNode;
+  /** Latar/kustom kelas untuk seluruh bagian. */
+  className?: string;
+  /** Bagian berlatar gelap/warna pekat: teks judul & anotasi jadi terang. */
+  dark?: boolean;
+  /** Judul & anotasi rata tengah. */
+  center?: boolean;
+  /** Sembunyikan garis gradien di bawah anotasi. */
+  hideRule?: boolean;
 }) {
   const annotated = Boolean(index && name);
 
   return (
     <section
       id={id}
-      className={`relative scroll-mt-24 overflow-hidden ${children ? "py-20 sm:py-28" : "py-16 sm:py-20"}`}
+      className={`relative scroll-mt-24 overflow-hidden ${children ? "py-20 sm:py-28" : "py-16 sm:py-20"} ${className ?? ""}`}
     >
       {annotated ? (
         <span
           aria-hidden
           data-numeral
-          className="pointer-events-none absolute -right-4 top-6 select-none text-[9rem] font-bold leading-none tracking-tighter text-deep/[0.06] sm:text-[14rem]"
+          className={`pointer-events-none absolute -right-4 top-6 select-none text-[9rem] font-bold leading-none tracking-tighter sm:text-[14rem] ${dark ? "text-white/[0.08]" : "text-deep/[0.06]"}`}
         >
           {index}
         </span>
@@ -101,36 +117,44 @@ function Section({
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
         {annotated ? (
           <>
-            <div className={`flex flex-wrap items-baseline justify-between gap-3 text-ochre ${label}`}>
+            <div className={`flex flex-wrap items-baseline gap-3 ${center ? "justify-center text-center" : "justify-between"} ${label} ${dark ? "text-white/80" : "text-ochre"}`}>
               <span>{name}</span>
-              {meta ? <span className="tabular text-deep/80">{meta}</span> : null}
+              {meta ? <span className={`tabular ${dark ? "text-white/70" : "text-deep/80"}`}>{meta}</span> : null}
             </div>
-            <div
-              aria-hidden
-              data-rule
-              className="mt-4 h-px w-full origin-left bg-gradient-to-r from-gold via-primary/60 to-transparent"
-            />
+            {hideRule ? null : (
+              <div
+                aria-hidden
+                data-rule
+                className="mt-4 h-px w-full origin-left bg-gradient-to-r from-gold via-primary/60 to-transparent"
+              />
+            )}
           </>
         ) : null}
 
         {intro ? (
           <div className="max-w-none">{intro}</div>
         ) : (
-          <div className="mt-8 grid gap-6 lg:grid-cols-12 lg:gap-12">
-            <h2 className="text-h1 text-ink lg:col-span-5" data-mask>
+          <div className={center ? "mt-8 text-center" : "mt-8 grid gap-6 lg:grid-cols-12 lg:gap-12"}>
+            <h2
+              className={`text-h1 ${center ? "mx-auto" : "lg:col-span-5"} ${dark ? "text-white" : "text-ink"}`}
+              data-mask
+            >
               <span data-mask-line className="block">
                 {title}
               </span>
             </h2>
             {desc ? (
-              <p className="max-w-[62ch] text-body text-deep/80 lg:col-span-7" data-motion>
+              <p
+                className={`max-w-[62ch] text-body ${center ? "mx-auto mt-4" : "lg:col-span-7"} ${dark ? "text-white/80" : "text-deep/80"}`}
+                data-motion
+              >
                 {desc}
               </p>
             ) : null}
           </div>
         )}
 
-        {children ? <div className="mt-12 sm:mt-14">{children}</div> : null}
+        {children ? <div className={center ? "mx-auto mt-12 max-w-3xl sm:mt-14" : "mt-12 sm:mt-14"}>{children}</div> : null}
       </div>
     </section>
   );
@@ -256,12 +280,20 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-deep/10 bg-surface/85 backdrop-blur">
       <nav aria-label="Navigasi utama" className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className={`rounded-sm text-h3 font-bold text-primary ${focus}`}>
-          UMKM-AI
-          <span className="ml-1 align-super font-mono text-[9px] font-medium text-deep/50">®</span>
+        <Link href="/" className={`flex items-center gap-2 rounded-sm ${focus}`}>
+          <span
+            aria-hidden
+            className="flex size-8 items-center justify-center rounded-md bg-surface text-lg font-extrabold leading-none text-primary ring-1 ring-primary/15"
+          >
+            U
+          </span>
+          <span className="text-h3 font-bold text-primary">
+            UMKM-AI
+            <span className="ml-1 align-super font-mono text-[9px] font-medium text-deep/50">®</span>
+          </span>
         </Link>
 
-        <ul className={`hidden items-center gap-7 text-deep/85 md:flex ${label}`}>
+        <ul className={`hidden items-center gap-7 text-deep/85 lg:flex ${label}`}>
           {NAV.map((n) => (
             <li key={n.href}>
               <a href={n.href} className={`rounded-sm transition hover:text-primary ${focus}`}>
@@ -271,20 +303,12 @@ function Header() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-2">
-          <Link
-            href="/masuk"
-            className={`inline-flex min-h-11 items-center rounded-md px-3 text-small font-medium text-deep transition hover:text-primary ${focus}`}
-          >
-            Masuk
-          </Link>
-          <Link
-            href="/daftar"
-            className={`inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-small font-semibold text-white transition hover:bg-[#C01717] ${focus}`}
-          >
-            Mulai gratis
-          </Link>
-        </div>
+        <Link
+          href="/masuk"
+          className={`inline-flex min-h-11 items-center rounded-md px-3 text-small font-semibold text-primary transition hover:text-[#C01717] ${focus}`}
+        >
+          Login
+        </Link>
       </nav>
     </header>
   );
@@ -299,90 +323,87 @@ const BUKTI = [
 
 function Hero() {
   return (
-    <section className="bg-surface px-4 pt-8 pb-16 sm:px-6 sm:pt-12 sm:pb-20">
-      {/* Bidang berfoto: hanya setinggi teks dan strip fakta, berhenti sebelum kartu produk. */}
-      <div className="relative isolate mx-auto max-w-6xl overflow-hidden rounded-2xl border border-deep/10">
-        <div aria-hidden className="absolute inset-0 -z-20" data-hero-group>
-          {HERO_SLIDES.map((s, i) => (
-            <Image
-              key={s.src}
-              data-hero-slide
-              src={s.src}
-              alt=""
-              fill
-              priority={i === 0}
-              sizes="(min-width: 1200px) 1152px, 100vw"
-              quality={92}
-              className="size-full object-cover object-center"
-            />
-          ))}
-        </div>
-        {/* Sisi teks ditutup bidang surface; sisi kanan dibiarkan jernih agar foto terbaca. */}
-        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-surface via-surface/80 to-transparent" />
+    <section className="bg-surface px-4 pt-10 pb-16 sm:px-6 sm:pt-14 sm:pb-20">
+      <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-12 lg:gap-14">
+        {/* Teks duduk langsung di latar terang — tanpa panel bertumpuk. */}
+        <div className="lg:col-span-6">
+          <h1 className="landing-rise text-display leading-[1.08] text-ink">
+            <span className="block">Platform Keuangan dan</span>
+            <span className="block text-primary">Analisis Bisnis Berbasis AI</span>
+            <span className="mt-1 block text-[1em] font-bold text-ink">untuk UMKM</span>
+          </h1>
 
-        <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-8 sm:py-12">
-          <div className="rounded-2xl border border-white/60 bg-white/85 p-6 shadow-[0_30px_60px_-40px_rgba(44,104,123,0.45)] backdrop-blur-md sm:p-8 lg:max-w-3xl">
-            <h1 className="landing-rise text-mega text-ink">
-              <span className="block">Platform Keuangan dan</span>
-              <span className="mt-1 block text-[0.82em] leading-[1.06] text-primary">
-                Analisis Bisnis Berbasis AI
-              </span>
-              <span className="mt-2 block text-[0.55em] font-bold tracking-[0.01em] text-ink">untuk UMKM</span>
-            </h1>
+          <p
+            className="landing-rise mt-5 max-w-[46ch] text-body text-deep"
+            style={{ animationDelay: "80ms" }}
+          >
+            UMKM-AI membantu pemilik UMKM mencatat transaksi, memahami kondisi keuangan, memantau utang dan
+            piutang, serta mendapatkan rekomendasi bisnis berdasarkan data keuangan aktual.
+          </p>
 
-            <p
-              className="landing-rise mt-6 max-w-[62ch] text-body text-deep sm:text-lg"
-              style={{ animationDelay: "80ms" }}
-            >
-              UMKM-AI membantu pemilik UMKM mencatat transaksi, memahami kondisi keuangan, memantau utang dan
-              piutang, serta mendapatkan rekomendasi bisnis berdasarkan data keuangan aktual.
-            </p>
-
-            <div
-              className="landing-rise mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
-              style={{ animationDelay: "160ms" }}
-            >
-              <Link href="/daftar" className={btnPrimary}>
-                Mulai <span className="font-bold">Gratis</span>
-                <ArrowRight className="size-4" aria-hidden />
-              </Link>
-              <a href="#cara-kerja" className={btnOutline}>
-                Lihat cara kerja
-              </a>
-            </div>
-
-            <p className="mt-4 font-mono text-[11px] text-deep/85">
-              tanpa kartu kredit · paket Free tersedia · naik ke Pro kapan pun
-            </p>
+          <div
+            className="landing-rise mt-8 flex flex-col gap-3 sm:flex-row sm:items-center"
+            style={{ animationDelay: "160ms" }}
+          >
+            <Link href="/daftar" className={`${btnPrimary} btn-shimmer`}>
+              Mulai <span className="font-bold">Gratis</span>
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+            <a href="#cara-kerja" className={btnOutline}>
+              Lihat cara kerja
+            </a>
           </div>
 
-          <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-deep/12 bg-deep/10 md:grid-cols-4">
-            {BUKTI.map((b) => (
-              <div key={b.k} className="bg-white/90 px-4 py-5 backdrop-blur-sm">
-                <dt className={`text-deep/80 ${label}`}>{b.k}</dt>
-                <dd className="mt-2 font-mono text-[11px] text-deep">{b.v}</dd>
-              </div>
+          <p className="mt-4 font-mono text-[11px] text-deep/85">
+            tanpa kartu kredit · paket Free tersedia · naik ke Pro kapan pun
+          </p>
+        </div>
+
+        {/* Foto UMKM sebagai kartu terang (tanpa lapisan gelap) + kartu contoh analisis AI. */}
+        <div className="relative lg:col-span-6">
+          <div
+            className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-deep/12 shadow-[0_40px_80px_-45px_rgba(44,104,123,0.55)]"
+            data-hero-group
+          >
+            {HERO_SLIDES.map((s, i) => (
+              <Image
+                key={s.src}
+                data-hero-slide
+                src={s.src}
+                alt={s.alt}
+                fill
+                priority={i === 0}
+                sizes="(min-width: 1024px) 560px, 100vw"
+                quality={92}
+                className="size-full object-cover object-center"
+              />
             ))}
-          </dl>
+          </div>
+          <div className="pointer-events-none absolute bottom-4 left-2 w-56 rounded-lg border border-deep/12 bg-white p-4 shadow-[0_30px_60px_-25px_rgba(26,26,26,0.35)] sm:-bottom-6 sm:-left-6">
+            <p className={`flex items-center gap-2 text-ochre ${label}`}>
+              <Sparkles className="size-3.5" aria-hidden />
+              insight AI
+            </p>
+            <p className="mt-2 text-small text-ink">Bahan baku naik 18%. Periksa harga pemasok.</p>
+            <p className="mt-1.5 font-mono text-[11px] text-deep/80">42 transaksi · November</p>
+          </div>
         </div>
       </div>
 
-      {/* Produk sebagai objek: tanpa foto di belakangnya. Bingkai perspektif + kartu insight melayang. */}
+      <dl className="mx-auto mt-16 grid max-w-6xl grid-cols-2 gap-px overflow-hidden rounded-lg border border-deep/12 bg-deep/10 sm:mt-20 md:grid-cols-4">
+        {BUKTI.map((b) => (
+          <div key={b.k} className="bg-white px-4 py-5">
+            <dt className={`text-deep/80 ${label}`}>{b.k}</dt>
+            <dd className="mt-2 font-mono text-[11px] text-deep">{b.v}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {/* Produk sebagai objek: bingkai perspektif. */}
       <div className="mx-auto mt-12 max-w-6xl sm:mt-14" data-clip>
         <TiltFrame className="mx-auto max-w-5xl">
           <div className="rounded-xl border border-deep/12 bg-white p-1.5 shadow-[0_50px_100px_-50px_rgba(44,104,123,0.6)]">
             <BerandaContoh />
-          </div>
-          <div
-            className="pointer-events-none absolute -right-4 top-8 hidden w-56 rounded-lg border border-deep/12 bg-white p-4 shadow-[0_30px_60px_-25px_rgba(26,26,26,0.35)] md:block"
-            style={{ transform: "translateZ(60px) rotate(-1.5deg)" }}
-          >
-            <p className={`flex items-center gap-2 text-ochre ${label}`}>
-              <Sparkles className="size-3.5" aria-hidden />
-              Insight AI
-            </p>
-            <p className="mt-2 text-small text-ink">Bahan baku naik 18%. Periksa harga pemasok.</p>
-            <p className="mt-1.5 font-mono text-[11px] text-deep/80">42 transaksi · November</p>
           </div>
         </TiltFrame>
       </div>
@@ -416,30 +437,52 @@ function Brand({ src, label }: { src: string; label: string }) {
 
 function Masalah() {
   return (
-    <Section
-      intro={
-        <div
-          className="text-h2 leading-[1.35] text-deep sm:text-display sm:leading-[1.25]"
-          data-run-opacity
-        >
-          <p className="max-w-[62ch] text-ink">
-            <Words text="Banyak pelaku UMKM sudah menggunakan buku tulis," />{" "}
-            <Brand src="/logos/excel.svg" label="Excel," />{" "}
-            <Brand src="/logos/google-sheets.svg" label="Google Sheets," />{" "}
-            <Words text="atau aplikasi pencatatan sederhana." />
-          </p>
-          <p className="mt-6 max-w-[62ch]">
-            <Words text="Masalahnya bukan hanya bagaimana mencatat transaksi, melainkan bagaimana mengubah catatan tersebut menjadi informasi yang mudah dipahami dan berguna untuk mengambil keputusan." />
-          </p>
-          <p className="mt-6 max-w-[62ch] text-ink">
-            <Words text="UMKM-AI menggabungkan pencatatan keuangan yang sederhana dengan" />{" "}
-            <strong className="font-semibold text-primary">
-              <Words text="analisis berbasis AI." />
-            </strong>
-          </p>
-        </div>
-      }
-    />
+    <div className="relative">
+      <Section
+        id="masalah"
+        className="section-grain bg-primary bg-[radial-gradient(100%_140%_at_100%_100%,rgba(0,0,0,0.30),transparent_55%)] text-white shadow-[inset_0_-60px_90px_-50px_rgba(0,0,0,0.40)]"
+        intro={
+          <div
+            className="relative text-h2 leading-[1.35] sm:text-display sm:leading-[1.25]"
+            data-run-opacity
+          >
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -right-2 -top-10 select-none text-[6rem] font-bold leading-none tracking-tighter text-white/[0.06] sm:text-[10rem]"
+            >
+              masalah
+            </span>
+            <p className="relative max-w-[62ch]">
+              <Words text="Banyak pelaku UMKM sudah menggunakan buku tulis," />{" "}
+              <Brand src="/logos/excel.svg" label="Excel," />{" "}
+              <Brand src="/logos/google-sheets.svg" label="Google Sheets," />{" "}
+              <Words text="atau aplikasi pencatatan sederhana." />
+            </p>
+            <p className="mt-6 max-w-[62ch] text-white/85">
+              <Words text="Masalahnya bukan hanya bagaimana mencatat transaksi, melainkan bagaimana mengubah catatan tersebut menjadi informasi yang mudah dipahami dan berguna untuk mengambil keputusan." />
+            </p>
+            <p className="mt-6 max-w-[62ch]">
+              <Words text="UMKM-AI menggabungkan pencatatan keuangan yang sederhana dengan" />{" "}
+              <strong className="font-semibold underline decoration-white/50 underline-offset-[6px]">
+                <Words text="analisis berbasis AI." />
+              </strong>
+            </p>
+          </div>
+        }
+      />
+
+      {/* Foto yang menembus batas bawah bagian — sengaja di luar <Section> yang overflow-hidden. */}
+      <div className="pointer-events-none absolute -bottom-14 right-6 z-10 hidden w-52 rotate-2 overflow-hidden rounded-xl border-4 border-white shadow-[0_40px_70px_-30px_rgba(0,0,0,0.55)] lg:block">
+        <Image
+          src="/images/umkm/kopi.webp"
+          alt=""
+          width={416}
+          height={312}
+          sizes="208px"
+          className="h-32 w-full object-cover"
+        />
+      </div>
+    </div>
   );
 }
 
@@ -480,7 +523,7 @@ function Fitur() {
   return (
     <Section
       id="fitur"
-      index="02"
+      index="03"
       name="fitur"
       meta="6 modul"
       title="Fitur untuk kelola keuangan usaha tiap hari"
@@ -490,7 +533,7 @@ function Fitur() {
         {FITUR.map((f, i) => (
           <div key={f.judul} className="grid gap-4 py-8 md:grid-cols-12 md:gap-8" data-motion>
             <p className={`text-ochre md:col-span-1 ${label}`}>{String(i + 1).padStart(2, "0")}</p>
-            <dt className="flex items-start gap-3 text-h3 text-ink md:col-span-4">
+            <dt className="flex origin-left items-start gap-3 text-h3 text-ink md:col-span-4" data-zoom-blur>
               <f.icon className="mt-1 size-5 shrink-0 text-primary" aria-hidden />
               {f.judul}
             </dt>
@@ -528,39 +571,85 @@ function Analisis() {
   return (
     <Section
       id="analisis"
-      index="03"
+      index="04"
       name="analisis ai"
-      meta="contoh keluaran"
+      meta="3 insight"
       title="Analisis keuangan dari data usahamu"
-      desc="AI Finance Analyst menjelaskan kondisi keuangan usahamu dan apa yang perlu dicek lebih dulu. Kami juga terang tentang batasnya."
+      dark
+      className="section-grain bg-primary bg-[radial-gradient(100%_140%_at_100%_100%,rgba(0,0,0,0.32),transparent_55%)] text-white shadow-[inset_0_-60px_90px_-50px_rgba(0,0,0,0.40)]"
     >
-      <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
-        <div className="lg:col-span-5" data-motion>
-          <ul className="divide-y divide-deep/10 border-y border-deep/10">
-            {AI_POIN.map((p) => (
-              <li key={p} className="flex items-start gap-3 py-4 text-small text-deep">
-                <Check className="mt-0.5 size-4 shrink-0 text-ochre" strokeWidth={3} aria-hidden />
-                {p}
+      <div className="relative isolate space-y-12 sm:space-y-16">
+        {/* Tanda air: logo GPT tanpa saturasi, berputar lambat. Dekoratif, tanpa makna aksesibel. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 select-none overflow-hidden">
+          <div className="absolute -right-12 top-1/2 h-[150%] w-auto -translate-y-1/2 sm:-right-4">
+            <svg
+              viewBox="0 0 611 611"
+              fill="currentColor"
+              className="h-full w-auto animate-[spin_45s_linear_infinite] text-white saturate-0 opacity-[0.06] motion-reduce:animate-none"
+            >
+              <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M252.794 108.802C289.191 99.0484 326.265 110.305 351.148 135.135C385.113 126.072 422.85 134.862 449.492 161.505C476.136 188.149 484.925 225.888 475.862 259.85V259.854C500.696 284.735 511.95 321.81 502.198 358.207C492.447 394.602 464.161 421.084 430.215 430.217C421.083 464.162 394.603 492.448 358.206 502.199C321.812 511.951 284.734 500.693 259.852 475.864C225.887 484.927 188.15 476.137 161.507 449.495C134.864 422.851 126.073 385.111 135.136 351.149C110.304 326.266 99.0496 289.192 108.801 252.795C118.552 216.4 146.84 189.918 180.784 180.785C189.917 146.841 216.396 118.553 252.794 108.802ZM374.292 407.145C374.292 411.271 372.092 415.086 368.517 417.148L283.723 466.102C302.487 480.585 327.555 486.459 352.217 479.852C386.997 470.532 410.068 439.312 410.555 405.006V317.717C410.555 315.08 409.125 312.621 406.843 311.303L374.292 292.509V407.145ZM251.868 415.897C248.296 417.959 243.893 417.959 240.317 415.897L155.526 366.942C152.366 390.436 159.811 415.08 177.866 433.136H177.863C203.325 458.594 241.896 462.962 271.85 446.232L347.449 402.586C349.735 401.268 351.148 398.8 351.148 396.163V358.579L251.868 415.897ZM368.602 220.628C366.319 219.309 363.474 219.318 361.191 220.637L328.641 239.431L427.921 296.749C431.496 298.811 433.697 302.627 433.697 306.752V404.661C455.622 395.654 473.244 376.881 479.851 352.218C489.169 317.442 473.668 281.85 444.201 264.274L368.602 220.628ZM177.303 206.34C155.377 215.348 137.756 234.122 131.148 258.783C121.832 293.561 137.331 329.153 166.799 346.727L242.398 390.373C244.68 391.692 247.525 391.684 249.807 390.366L282.357 371.572L183.078 314.253C179.504 312.189 177.303 308.375 177.303 304.251V206.34ZM259.849 279.145V331.858L305.5 358.213L351.15 331.858V279.145L305.5 252.789L259.849 279.145ZM327.276 144.9C308.512 130.418 283.445 124.543 258.782 131.15C224.002 140.471 200.931 171.691 200.445 205.995V293.286C200.445 295.923 201.875 298.381 204.158 299.7L236.707 318.493V203.856C236.707 199.731 238.909 195.916 242.483 193.853L327.276 144.9ZM433.137 177.867C407.675 152.407 369.103 148.038 339.149 164.769L263.55 208.415C261.265 209.734 259.852 212.202 259.852 214.838V252.423L359.132 195.105C362.703 193.041 367.108 193.041 370.682 195.105L455.473 244.06C458.635 220.567 451.189 195.922 433.135 177.867H433.137Z"
+              />
+            </svg>
+          </div>
+        </div>
+
+        {/* 1. Contoh keluaran: satu insight = satu kartu, gampang dipindai. */}
+        <div data-motion>
+          <p className={`flex items-center gap-2 text-white ${label}`}>
+            <Sparkles className="size-3.5" aria-hidden />
+            Contoh keluaran AI
+          </p>
+          <ul className="mt-4 grid gap-4 sm:gap-5 lg:grid-cols-3" data-insight-list>
+            {INSIGHT.map((s, i) => (
+              <li
+                key={i}
+                data-insight-item
+                className="flex flex-col rounded-xl border border-white/15 bg-white p-5 shadow-sm sm:p-6"
+              >
+                <p className={`text-ochre ${label}`}>Insight {String(i + 1).padStart(2, "0")}</p>
+                <p className="mt-3 flex-1 text-body text-ink">{s.isi}</p>
+                <p className="mt-4 border-t border-deep/10 pt-3 font-mono text-[11px] text-deep/80">{s.meta}</p>
               </li>
             ))}
           </ul>
+          <p className="mt-4 max-w-[70ch] font-mono text-[11px] leading-relaxed text-white/70">
+            Contoh tampilan. Insight sebenarnya dibuat dari data usahamu sendiri. Selisih kas tidak pernah kami
+            sebut laba bersih, karena versi ini belum menghitung harga pokok penjualan.
+          </p>
+        </div>
 
-          {/*
-            Foreground: foto yang menonjol keluar dari alur panel dan bergerak lebih cepat saat
-            digulir, jadi terbaca berada di depan bagian ini.
-          */}
-          <div className="relative mt-10 hidden lg:block">
+        {/* 2. Batas dan aturan AI: daftar tegas + foto pendukung. */}
+        <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-7" data-motion>
+            <p className={`flex items-center gap-2 text-white ${label}`}>
+              <ShieldCheck className="size-3.5" aria-hidden />
+              Batas dan aturan AI
+            </p>
+            <ul className="mt-4 divide-y divide-white/15 border-y border-white/15" data-check-list>
+              {AI_POIN.map((p) => (
+                <li key={p} className="flex items-start gap-3 py-4 text-small text-white/85">
+                  <Check data-check className="mt-0.5 size-4 shrink-0 text-white" strokeWidth={3} aria-hidden />
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="relative hidden lg:col-span-5 lg:block">
             <div
               data-foreground
-              className="relative z-10 -ml-4 w-[19rem] overflow-hidden rounded-xl border border-white/80 shadow-[0_50px_90px_-40px_rgba(26,26,26,0.45)]"
+              className="relative z-10 overflow-hidden rounded-xl border border-white/20 shadow-[0_50px_90px_-40px_rgba(0,0,0,0.55)]"
             >
-              <div className="relative h-64 w-full">
+              <div className="relative h-56 w-full">
                 <Image
                   src="/images/umkm/anyaman.webp"
                   alt="Tumpukan keranjang anyaman bermotif warna-warni di pasar kerajinan"
                   fill
-                  sizes="304px"
-                  className="size-full object-cover"
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                  className="size-full object-cover grayscale"
                 />
               </div>
               <div className="bg-white px-4 py-3">
@@ -570,102 +659,7 @@ function Analisis() {
             </div>
           </div>
         </div>
-
-        <div className="lg:col-span-7" data-motion>
-          <div className="rounded-xl border border-deep/12 bg-white p-6 shadow-sm sm:p-8">
-            <p className={`flex items-center justify-between gap-4 text-ochre ${label}`}>
-              <span className="flex items-center gap-2">
-                <Sparkles className="size-3.5" aria-hidden />
-                Insight hari ini
-              </span>
-              <span className="text-deep/50">contoh keluaran</span>
-            </p>
-
-            <ul className="mt-6 divide-y divide-deep/10 border-y border-deep/10">
-              {INSIGHT.map((s, i) => (
-                <li key={s.meta} className="py-5">
-                  <p className={`text-ochre ${label}`}>{String(i + 1).padStart(2, "0")}</p>
-                  <p className="mt-2 text-body text-ink">{s.isi}</p>
-                  <p className="mt-2 font-mono text-[11px] text-deep/80">{s.meta}</p>
-                </li>
-              ))}
-            </ul>
-
-            <p className="mt-6 border-t border-deep/10 pt-5 font-mono text-[11px] leading-relaxed text-deep/80">
-              Contoh tampilan. Insight sebenarnya dibuat dari data usahamu sendiri. Selisih kas tidak pernah kami
-              sebut laba bersih, karena versi ini belum menghitung harga pokok penjualan.
-            </p>
-          </div>
-        </div>
       </div>
-    </Section>
-  );
-}
-
-const LAPISAN = [
-  {
-    src: "/images/umkm/jajanan.webp",
-    alt: "Etalase kaca toko kue berisi aneka jajanan dengan label harga",
-    langkah: "Langkah 1",
-    judul: "Catat",
-    isi: "Pendapatan dan pengeluaran tersimpan lengkap dengan kategori, tanggal, dan metode pembayaran.",
-  },
-  {
-    src: "/images/umkm/anyaman.webp",
-    alt: "Tumpukan keranjang anyaman bermotif warna-warni di pasar kerajinan",
-    langkah: "Langkah 2",
-    judul: "Pantau",
-    isi: "Saldo kas dan tagihan utang-piutang mengikuti catatan yang tersimpan, bukan hitungan terpisah di tampilan.",
-  },
-  {
-    src: "/images/umkm/pasar.webp",
-    alt: "Lapak sayur di pasar tradisional, penjual melayani pembeli",
-    langkah: "Langkah 3",
-    judul: "Pahami",
-    isi: "Ringkasan dan insight AI dihitung dari catatan usahamu sendiri, lengkap dengan periode dan angka pendukungnya.",
-  },
-];
-
-/**
- * Tiga panel menempel (sticky) yang membesar saat digulir. Tanpa JavaScript panel tetap tampil
- * datar dan bisa dibaca semua.
- */
-function Lapisan() {
-  return (
-    <Section
-      index="04"
-      name="alur"
-      meta="3 lapisan"
-      title="Catat, pantau, lalu pahami"
-      desc="Tiga lapisan yang menumpuk di atas satu catatan transaksi yang sama."
-    >
-      <ol>
-        {LAPISAN.map((l, i) => (
-          <li key={l.judul} className="sticky mb-4 last:mb-0" style={{ top: `${100 + i * 18}px` }}>
-            <div
-              data-layer
-              className="grid overflow-hidden rounded-xl border border-deep/12 bg-white shadow-lg shadow-deep/10 md:grid-cols-12 md:items-center"
-            >
-              <div className="relative h-44 md:col-span-4 md:h-56">
-                <Image
-                  src={l.src}
-                  alt={l.alt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
-                />
-                <span className={`absolute left-4 top-4 rounded-sm bg-white/90 px-2 py-1 text-ochre ${label}`}>
-                  {l.langkah}
-                </span>
-              </div>
-              <div className="p-6 sm:p-8 md:col-span-8">
-                <h3 className="text-h2 text-ink">{l.judul}</h3>
-                <p className="mt-3 max-w-[56ch] text-body text-deep/80">{l.isi}</p>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ol>
     </Section>
   );
 }
@@ -717,26 +711,35 @@ const JENIS = [
 function UntukSiapa() {
   return (
     <Section
-      index="06"
+      id="pengguna"
+      index="02"
       name="pengguna"
       meta="3 jenis usaha"
       title="Cocok untuk berbagai jenis usaha kecil"
       desc="UMKM-AI dibuat untuk usaha dengan pencatatan sederhana dan pemilik yang mengurus sendiri operasional hariannya."
     >
-      <ul className="grid gap-6 sm:grid-cols-3">
+      <ul className="grid gap-6 sm:grid-cols-3" data-jenis-list>
         {JENIS.map((j, i) => (
-          <li key={j.judul} className={i === 1 ? "sm:mt-10" : ""} data-motion>
-            <div className="relative h-48 w-full overflow-hidden rounded-xl border border-deep/12">
+          <li key={j.judul} className={i === 1 ? "sm:mt-10" : ""} data-jenis-card>
+            <div
+              className="relative h-48 w-full overflow-hidden rounded-xl border border-deep/12"
+              data-jenis-media
+            >
               <Image
                 src={j.src}
                 alt={j.alt}
                 fill
+                data-jenis-parallax
                 sizes="(max-width: 640px) 100vw, 33vw"
                 className="object-cover"
               />
             </div>
-            <h3 className="mt-4 text-h3 text-ink">{j.judul}</h3>
-            <p className="mt-1.5 text-small text-deep/80">{j.isi}</p>
+            <h3 className="mt-4 text-h3 text-ink" data-jenis-text>
+              {j.judul}
+            </h3>
+            <p className="mt-1.5 text-small text-deep/80" data-jenis-text>
+              {j.isi}
+            </p>
           </li>
         ))}
       </ul>
@@ -756,7 +759,7 @@ function Keamanan() {
   return (
     <Section
       id="keamanan"
-      index="07"
+      index="06"
       name="keamanan"
       meta="4 kendali"
       title="Cara kami menjaga data keuanganmu"
@@ -780,33 +783,6 @@ function Keamanan() {
         Versi pertama fokus pada pencatatan, laporan, dan analisis AI · chat transaksi &amp; pemindaian struk menyusul
       </p>
     </Section>
-  );
-}
-
-/** Pita foto selebar layar: jeda visual antara dua blok data (satu-satunya blok gelap). */
-function PitaFoto() {
-  return (
-    <section className="relative isolate overflow-hidden">
-      <Image
-        src="/images/background1.jpg"
-        alt=""
-        fill
-        sizes="100vw"
-        data-band-image
-        className="absolute inset-0 -z-20 size-full scale-110 object-cover"
-      />
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[#0e2a33]/88" />
-      <div data-motion className="relative mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 sm:py-24">
-        <p className={`text-gold ${label}`}>sumber angka</p>
-        <p className="mt-5 text-h2 text-white">
-          Setiap angka di UMKM-AI berasal dari transaksi yang kamu catat, bukan dari rata-rata industri atau
-          perkiraan.
-        </p>
-        <p className="mt-4 text-small text-white/80">
-          Memulai butuh beberapa menit, dan hasilnya bisa langsung dipakai membaca usaha.
-        </p>
-      </div>
-    </section>
   );
 }
 
@@ -839,7 +815,7 @@ const FAQ = [
 
 function Faq() {
   return (
-    <Section id="faq" index="09" name="faq" meta="6 pertanyaan" title="Pertanyaan yang sering muncul">
+    <Section id="faq" index="07" name="faq" meta="6 pertanyaan" title="Pertanyaan yang sering muncul" center hideRule>
       <div className="max-w-3xl border-y border-deep/10">
         {FAQ.map((f, i) => (
           <details key={f.q} className="group border-b border-deep/10 last:border-b-0" data-motion>
@@ -859,6 +835,116 @@ function Faq() {
           </details>
         ))}
       </div>
+    </Section>
+  );
+}
+
+const PLAN = [
+  {
+    nama: "Free",
+    icon: Wallet,
+    harga: "Rp 0",
+    periode: "/bulan",
+    ringkas: "Cukup untuk mulai mencatat dan membaca kondisi usaha.",
+    fitur: [
+      "Maksimal 100 transaksi manual per bulan",
+      "Kuota analisis AI bulanan dasar",
+      "Dashboard dasar dan laporan sesuai batas paket",
+      "Akses riwayat tetap ada walau kuota transaksi habis",
+      "Impor CSV mengikuti batas transaksi",
+      "Pencatatan keuangan tetap jalan tanpa AI",
+    ],
+    cta: "Mulai gratis",
+    href: "/daftar",
+    featured: false,
+  },
+  {
+    nama: "Pro",
+    icon: Sparkles,
+    harga: "Rp 49.000",
+    periode: "/bulan",
+    ringkas: "Untuk usaha yang butuh laporan lengkap dan AI lebih sering.",
+    fitur: [
+      "Semua di paket Free, tanpa batas transaksi manual",
+      "Hingga 5 anggota aktif per bisnis",
+      "Laporan lanjutan dan perbandingan historis lebih panjang",
+      "Ekspor penuh CSV, Excel, dan PDF",
+      "Kuota analisis AI lebih besar (fair use)",
+      "Pembayaran manual diverifikasi admin",
+    ],
+    cta: "Pilih Pro",
+    href: "/daftar",
+    featured: true,
+  },
+] as const;
+
+function Harga() {
+  return (
+    <Section
+      id="harga"
+      index="08"
+      name="harga"
+      meta="2 paket"
+      title="Mulai gratis, naik ke Pro saat perlu"
+      desc="Harga transparan tanpa biaya tersembunyi. Bisa berhenti kapan saja."
+      center
+    >
+      <div className="grid gap-6 lg:grid-cols-2" style={{ perspective: "1400px" }}>
+        {PLAN.map((p) => (
+          <article
+            key={p.nama}
+            data-price-card
+            data-price-featured={p.featured ? "true" : undefined}
+            className={`relative flex flex-col rounded-2xl p-6 sm:p-8 ${
+              p.featured
+                ? "price-glow bg-white shadow-[0_40px_90px_-45px_rgba(219,26,26,0.45)]"
+                : "border border-deep/12 bg-white/70"
+            }`}
+          >
+            {p.featured ? (
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
+              >
+                <span className="price-shimmer-bar absolute -left-1/2 inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+              </span>
+            ) : null}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="flex items-center gap-2 text-h3 text-ink">
+                <p.icon className="size-5 text-primary" aria-hidden />
+                {p.nama}
+              </span>
+              {p.featured ? (
+                <span className={`rounded-full bg-primary px-3 py-1 text-white ${label}`}>Paling populer</span>
+              ) : null}
+            </div>
+
+            <p className="mt-6 flex items-baseline gap-1">
+              <span className="text-h1 text-ink">{p.harga}</span>
+              <span className="text-small text-deep/70">{p.periode}</span>
+            </p>
+            <p className="mt-2 max-w-[42ch] text-small text-deep/80">{p.ringkas}</p>
+
+            <ul className="mt-6 space-y-3">
+              {p.fitur.map((f) => (
+                <li key={f} className="flex items-start gap-3 text-small text-deep">
+                  <Check className="mt-0.5 size-4 shrink-0 text-primary" strokeWidth={3} aria-hidden />
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <Link href={p.href} className={`mt-8 ${p.featured ? btnPrimary : btnOutline}`}>
+              {p.cta}
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </article>
+        ))}
+      </div>
+
+      <p className={`mt-6 text-center text-deep/60 ${label}`}>
+        Harga Pro awal · bisa berubah setelah validasi · pembayaran manual
+      </p>
     </Section>
   );
 }
@@ -947,8 +1033,18 @@ function Footer() {
         <div
           className={`mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-deep/80 sm:px-6 ${label}`}
         >
-          <span>© {new Date().getFullYear()} UMKM-AI</span>
-          <span>Foto: Unsplash dan Pexels</span>
+          <span className="flex flex-wrap items-center gap-2">
+            © {new Date().getFullYear()} UMKM-AI · By
+            <a
+              href="https://itzai.site"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`inline-flex items-center rounded-full border border-deep/15 bg-white px-2.5 py-1 font-semibold text-primary shadow-sm transition-colors hover:border-primary/40 hover:bg-primary hover:text-white ${focus}`}
+            >
+              ITZ AI
+              <span className="sr-only"> (buka itzai.site di tab baru)</span>
+            </a>
+          </span>
         </div>
       </div>
     </footer>
@@ -969,17 +1065,17 @@ export function LandingPage() {
         <main id="isi">
           <Hero />
           <Masalah />
+          <UntukSiapa />
           <Fitur />
           <Analisis />
-          <Lapisan />
           <CaraKerja />
-          <UntukSiapa />
           <Keamanan />
-          <PitaFoto />
           <Faq />
+          <Harga />
           <AjakanTerakhir />
         </main>
         <Footer />
+        <CookieConsent />
       </div>
     </LandingMotion>
   );

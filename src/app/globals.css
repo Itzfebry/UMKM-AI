@@ -47,10 +47,6 @@
 
   /* Hierarki tipografi — lihat docs/DESIGN.md */
   /* Judul hero: besar dan rapat. Skala cair supaya 1440 px tidak terasa seperti dokumen. */
-  --text-mega: clamp(2.75rem, 5.4vw, 4.75rem);
-  --text-mega--line-height: 0.98;
-  --text-mega--font-weight: 700;
-  --text-mega--letter-spacing: -0.03em;
   --text-display: clamp(2rem, 3vw, 2.75rem);
   --text-display--line-height: 1.08;
   --text-display--font-weight: 700;
@@ -181,11 +177,110 @@ dd {
   animation: ledger-shimmer 1.4s linear infinite;
 }
 
+/* Kilau menyapu berulang di tombol: menarik mata tanpa gerak berlebihan. Satu lapuk gradien
+   melintas dari kiri ke kanan, lalu jeda, lalu ulang. */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 25%, rgba(255, 255, 255, 0.45) 50%, transparent 75%);
+  transform: translateX(-120%);
+  animation: btn-shimmer 3.2s ease-in-out infinite;
+}
+
+@keyframes btn-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  55%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/* Bingkai gradien berputar di kartu Pro: cincin tipis 1px yang warnanya bergerak. */
+@property --price-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.price-glow::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: conic-gradient(from var(--price-angle), rgba(255, 255, 255, 0.9), rgba(224, 162, 27, 0.85), rgba(255, 255, 255, 0.9));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: price-angle 14s linear infinite;
+}
+
+@keyframes price-angle {
+  to {
+    --price-angle: 360deg;
+  }
+}
+
+/* Kilau menyapu di kartu Pro. Digerakkan `transform` (GPU) di dalam lapisan ber-overflow-hidden,
+   jadi tidak ada lompatan repaint seperti animasi background-position — inilah yang dulu bikin
+   berkedip tiap kali animasi mengulang. Berhenti setelah 10 kali sapuan. */
+.price-shimmer-bar {
+  will-change: transform;
+  animation: price-shimmer-bar 3.6s linear 10;
+}
+
+@keyframes price-shimmer-bar {
+  from {
+    transform: translateX(0) skewX(-12deg);
+  }
+  to {
+    transform: translateX(300%) skewX(-12deg);
+  }
+}
+
+/* Butir halus untuk menghilangkan kesan bidang warna rata. Ditaruh di ::after supaya tidak
+   perlu elemen DOM tambahan; pointer-events mati agar tidak menghalangi interaksi. */
+.section-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.09;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-rise,
   .ledger-bar,
   .ledger-orbit,
   .ledger-shimmer {
     animation: none;
+  }
+
+  .btn-shimmer::after {
+    animation: none;
+    transform: translateX(-120%);
+  }
+
+  .price-glow::after {
+    animation: none;
+  }
+
+  .price-shimmer-bar {
+    animation: none;
+    transform: translateX(-150%) skewX(-12deg);
   }
 }

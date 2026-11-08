@@ -120,6 +120,136 @@ export function LandingMotion({ children }: { children: ReactNode }) {
           );
         }
 
+        // Judul fitur masuk dari ukuran besar + buram ke normal + tajam mengikuti gulir.
+        for (const el of gsap.utils.toArray<HTMLElement>("[data-zoom-blur]")) {
+          gsap.fromTo(
+            el,
+            { scale: 1.5, opacity: 0.25, filter: "blur(14px)" },
+            {
+              scale: 1,
+              opacity: 1,
+              filter: "blur(0px)",
+              ease: "none",
+              scrollTrigger: { trigger: el, start: "top 88%", end: "top 50%", scrub: 0.5 },
+            },
+          );
+        }
+
+        // Pita warna "masalah": terungkap dari bawah lewat clip-path saat digulir, jadi blok merah
+        // tumbuh masuk — bukan sekadar fade. Teksnya tetap dianimasikan kata-per-kata (data-run-opacity).
+        const band = scope.querySelector<HTMLElement>("#masalah");
+        if (band) {
+          gsap.fromTo(
+            band,
+            { clipPath: "inset(14% 0% 0% 0%)" },
+            {
+              clipPath: "inset(0% 0% 0% 0%)",
+              ease: "none",
+              scrollTrigger: { trigger: band, start: "top bottom", end: "top 60%", scrub: 0.6 },
+            },
+          );
+        }
+
+        // Insight AI "mengalir" masuk satu per satu seperti sedang dihasilkan mesin.
+        for (const list of gsap.utils.toArray<HTMLElement>("[data-insight-list]")) {
+          const items = gsap.utils.toArray<HTMLElement>("[data-insight-item]", list);
+          if (items.length === 0) continue;
+          gsap.from(items, {
+            autoAlpha: 0,
+            y: 16,
+            filter: "blur(6px)",
+            stagger: 0.15,
+            duration: 0.6,
+            ease: "power2.out",
+            scrollTrigger: { trigger: list, start: "top 75%", toggleActions: "restart none none reset" },
+          });
+        }
+
+        // Centang daftar "batas AI" digambar garisnya sekali saat daftar masuk layar.
+        for (const list of gsap.utils.toArray<HTMLElement>("[data-check-list]")) {
+          const paths = gsap.utils.toArray<SVGPathElement>("[data-check] path", list);
+          if (paths.length === 0) continue;
+          for (const path of paths) {
+            const len = path.getTotalLength();
+            path.style.strokeDasharray = `${len}`;
+            path.style.strokeDashoffset = `${len}`;
+          }
+          gsap.to(paths, {
+            strokeDashoffset: 0,
+            duration: 0.5,
+            ease: "power2.out",
+            stagger: 0.12,
+            scrollTrigger: { trigger: list, start: "top 80%", toggleActions: "restart none none reset" },
+          });
+        }
+
+        // Kartu harga masuk dengan putaran 3D (kiri/kanan bergantian) + blur → tajam.
+        const priceCards = gsap.utils.toArray<HTMLElement>("[data-price-card]");
+        if (priceCards.length > 0) {
+          gsap.from(priceCards, {
+            rotateY: (i: number) => (i % 2 === 0 ? -24 : 24),
+            yPercent: 14,
+            autoAlpha: 0,
+            filter: "blur(8px)",
+            transformOrigin: "center",
+            stagger: 0.18,
+            duration: 1,
+            ease: "power3.out",
+            clearProps: "filter",
+            scrollTrigger: { trigger: priceCards[0].parentElement, start: "top 78%", once: true },
+          });
+        }
+
+        // Kartu jenis usaha: tirai gambar terbuka (clip-path) + gambar mengecil dari zoom,
+        // teks menyusul naik. Tiap kartu bergiliran.
+        const jenisCards = gsap.utils.toArray<HTMLElement>("[data-jenis-card]");
+        if (jenisCards.length > 0) {
+          const jenisTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: jenisCards[0].parentElement,
+              start: "top 85%",
+              end: "bottom 55%",
+              scrub: 0.6,
+            },
+          });
+          jenisCards.forEach((card, i) => {
+            const media = card.querySelector<HTMLElement>("[data-jenis-media]");
+            const img = card.querySelector<HTMLElement>("[data-jenis-parallax]");
+            const text = gsap.utils.toArray<HTMLElement>("[data-jenis-text]", card);
+            const at = i * 0.15;
+            jenisTl.from(card, { y: 44, autoAlpha: 0, duration: 0.7, ease: "power3.out" }, at);
+            if (media) {
+              jenisTl.fromTo(
+                media,
+                { clipPath: "inset(100% 0% 0% 0%)" },
+                { clipPath: "inset(0% 0% 0% 0%)", duration: 0.9, ease: "power3.inOut" },
+                at + 0.1,
+              );
+            }
+            if (img) {
+              jenisTl.from(img, { scale: 1.28, duration: 1.15, ease: "power3.out" }, at + 0.1);
+            }
+            if (text.length > 0) {
+              jenisTl.from(text, { y: 18, autoAlpha: 0, stagger: 0.08, duration: 0.5, ease: "power2.out" }, at + 0.45);
+            }
+          });
+        }
+
+        // Gambar jenis usaha bergeser sedikit di dalam bingkainya (parallax).
+        for (const img of gsap.utils.toArray<HTMLElement>("[data-jenis-parallax]")) {
+          const media = img.closest("[data-jenis-media]");
+          if (!media) continue;
+          gsap.fromTo(
+            img,
+            { yPercent: -8 },
+            {
+              yPercent: 8,
+              ease: "none",
+              scrollTrigger: { trigger: media, start: "top bottom", end: "bottom top", scrub: 0.6 },
+            },
+          );
+        }
+
         // Garis aksen tiap bagian memanjang saat bagiannya masuk layar.
         for (const rule of gsap.utils.toArray<HTMLElement>("[data-rule]")) {
           gsap.fromTo(
@@ -157,14 +287,6 @@ export function LandingMotion({ children }: { children: ReactNode }) {
           );
         }
 
-        gsap.utils.toArray<HTMLElement>("[data-layer]").forEach((el, index) => {
-          gsap.fromTo(
-            el,
-            { scale: MOTION.popupScale + index * 0.015, y: MOTION.distance * 1.5 },
-            { scale: 1, y: 0, ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "top 60%", scrub: 0.5 } },
-          );
-        });
-
         // Garis kemajuan gulir di puncak halaman (dekorasi, tidak menyampaikan informasi).
         const progress = scope.querySelector<HTMLElement>("[data-progress]");
         if (progress) {
@@ -187,19 +309,6 @@ export function LandingMotion({ children }: { children: ReactNode }) {
           );
         }
 
-        // Foto pita bergeser sedikit di dalam bingkainya (bukan seluruh bagian yang bergerak).
-        for (const band of gsap.utils.toArray<HTMLElement>("[data-band-image]")) {
-          gsap.fromTo(
-            band,
-            { yPercent: -7 },
-            {
-              yPercent: 7,
-              ease: "none",
-              scrollTrigger: { trigger: band.parentElement, start: "top bottom", end: "bottom top", scrub: 0.6 },
-            },
-          );
-        }
-
         // Elemen foreground naik lebih cepat dari bagiannya — memberi kesan menonjol keluar.
         for (const fg of gsap.utils.toArray<HTMLElement>("[data-foreground]")) {
           gsap.fromTo(
@@ -211,6 +320,12 @@ export function LandingMotion({ children }: { children: ReactNode }) {
               scrollTrigger: { trigger: fg, start: "top bottom", end: "bottom top", scrub: 0.7 },
             },
           );
+        }
+
+        // Kartu Pro "melayang" pelan terus-menerus agar menonjol.
+        const featuredPrice = scope.querySelector<HTMLElement>('[data-price-featured="true"]');
+        if (featuredPrice) {
+          gsap.to(featuredPrice, { y: -8, duration: 4.5, ease: "sine.inOut", yoyo: true, repeat: -1 });
         }
       });
     }, scope);

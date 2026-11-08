@@ -283,3 +283,15 @@
 - Logo ikut animasi kata menyala (diberi `data-run-opacity-word`), jadi opasitasnya seirama dengan teks. Terukur: logo 34×34 px dan 25×34 px pada teks 43 px, `line-height` tetap 54 px, paragraf tetap 3 baris.
 - Verifikasi: `pnpm typecheck` + `pnpm lint` hijau; `/logos/excel.svg` dan `/logos/google-sheets.svg` dilayani 200 `image/svg+xml`; kedua gambar `naturalWidth > 0` di browser.
 - Catatan: perubahan ini belum di-commit.
+
+## 2026-11-08 — Hero: komposisi dua kolom, tipografi dikecilkan
+
+- Kritik yang ditanggapi: teks mendominasi, foto gelap/kurang relevan, headline terlalu besar. Panel kaca `bg-white/85` dibuang; teks kini duduk langsung di latar terang.
+- Komposisi: grid 12 kolom dengan dua kolom sama lebar (terukur 548 px : 548 px di 1440 px). Kiri = judul, paragraf (measure 46ch), dua tombol, microcopy. Kanan = foto UMKM berputar dalam bingkai `aspect-[4/3]` bersudut membulat tanpa lapisan gelap, dengan kartu "insight AI" menumpuk di sudut kiri bawah.
+- Tipografi: `text-mega` (76 px) diganti `text-display` 43 px dengan `leading-[1.08]`; baris "untuk UMKM" 0,75em (32 px) bold — sempat 0,58em (25 px), dinaikkan atas permintaan. Token `--text-mega` dihapus dari `globals.css` karena tak terpakai lagi.
+- Kartu produk `BerandaContoh` tetap di bawah strip fakta; kartu insight duplikat di dalamnya dihapus karena sudah pindah ke hero.
+- Ketajaman foto: bingkai 548 px melawan sumber 1200 px → skala 0,98 (turun, bukan naik); `sizes` disetel `(min-width: 1024px) 560px, 100vw`.
+- Kartu insight di mobile masuk ke dalam bingkai (`bottom-4 left-2`), hanya menggantung di `sm+` — sebelumnya terpotong tepi bawah layar. Jarak ke strip fakta dinaikkan (kartu → strip 56 px, grid → strip 80 px).
+- Verifikasi: `pnpm typecheck` + `pnpm lint` hijau; judul 43,2 px / tinggi 124 px; dua kolom 548 px; 3 slide dalam satu grup; `overflowX = 0` di 1440 px dan 390 px; kartu insight di mobile 540 px < dasar bingkai 556 px (di dalam).
+- Sisa yang belum disentuh: foto pasar cukup ramai di sebelah headline merah, dan dasar dua kolom tidak rata karena `items-center`.
+- Catatan: perubahan ini belum di-commit.
