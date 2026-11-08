@@ -19,6 +19,10 @@ export const MOTION = {
   batchMax: 6,
   /** Titik picu: elemen mulai tampil saat 88% tinggi viewport. */
   start: "top 88%",
-  /** Rotasi latar WebGL penuh (detik) — lambat supaya tidak menarik perhatian. */
-  canvasSpin: 90,
+  /** Skala awal kartu yang "muncul" saat digulir (1 = tidak diperkecil). */
+  popupScale: 0.94,
+  /** Lama satu gambar hero bertahan sebelum berganti (detik). */
+  slideHold: 6,
+  /** Durasi silang-ganti antar gambar hero (detik). */
+  slideFade: 1.4,
 } as const;

@@ -36,6 +36,23 @@ export function LandingMotion({ children }: { children: ReactNode }) {
       // Reveal hanya dibuat untuk pengguna yang tidak memilih reduced motion; bila preferensinya
       // berubah, matchMedia merevert dan konten kembali terlihat penuh.
       media.add("(prefers-reduced-motion: no-preference)", () => {
+        /* Slideshow latar hero: gambar berganti pelan dengan silang-ganti, bukan potongan cepat.
+           Tiap grup (latar dan jendela foto) bergiliran sendiri supaya tidak saling menimpa. */
+        for (const group of gsap.utils.toArray<HTMLElement>("[data-hero-group]")) {
+          const slides = gsap.utils.toArray<HTMLElement>("[data-hero-slide]", group);
+          if (slides.length < 2) continue;
+          gsap.set(slides, { autoAlpha: 0 });
+          gsap.set(slides[0], { autoAlpha: 1 });
+          const showcase = gsap.timeline({ repeat: -1, defaults: { ease: "power2.inOut" } });
+          slides.forEach((slide, i) => {
+            const next = slides[(i + 1) % slides.length];
+            // Perubahan pertama baru terjadi setelah gambar pertama tampil cukup lama.
+            const at = (i + 1) * MOTION.slideHold;
+            showcase.to(slide, { autoAlpha: 0, duration: MOTION.slideFade }, at);
+            showcase.to(next, { autoAlpha: 1, duration: MOTION.slideFade }, at);
+          });
+        }
+
         const motionItems = gsap.utils.toArray<HTMLElement>("[data-motion]");
         if (motionItems.length === 0) return;
 
@@ -58,6 +75,101 @@ export function LandingMotion({ children }: { children: ReactNode }) {
           }
         };
         ScrollTrigger.addEventListener("refresh", revealInView);
+
+        // Teks berjalan: kata demi kata menyala dari 30% ke 100% mengikuti gulir.
+        for (const block of gsap.utils.toArray<HTMLElement>("[data-run-opacity]")) {
+          const words = gsap.utils.toArray<HTMLElement>("[data-run-opacity-word]", block);
+          if (words.length === 0) continue;
+          gsap.fromTo(
+            words,
+            { opacity: 0.3 },
+            {
+              opacity: 1,
+              ease: "none",
+              stagger: 0.5,
+              scrollTrigger: { trigger: block, start: "top 80%", end: "bottom 65%", scrub: 0.4 },
+            },
+          );
+        }
+
+        // Judul bermask: tiap baris naik dari balik garis, sekali saja.
+        for (const block of gsap.utils.toArray<HTMLElement>("[data-mask]")) {
+          const lines = gsap.utils.toArray<HTMLElement>("[data-mask-line]", block);
+          if (lines.length === 0) continue;
+          gsap.set(lines, { yPercent: 110 });
+          gsap.to(lines, {
+            yPercent: 0,
+            duration: 1.05,
+            ease: "expo.out",
+            stagger: 0.12,
+            scrollTrigger: { trigger: block, start: "top 88%", once: true },
+          });
+        }
+
+        // Panel muncul dengan klip dari bawah, terikat gulir (efek "megah" per bagian).
+        for (const panel of gsap.utils.toArray<HTMLElement>("[data-clip]")) {
+          gsap.fromTo(
+            panel,
+            { clipPath: "inset(14% 6% 0% 6% round 14px)", y: MOTION.distance * 1.5 },
+            {
+              clipPath: "inset(0% 0% 0% 0% round 14px)",
+              y: 0,
+              ease: "none",
+              scrollTrigger: { trigger: panel, start: "top bottom", end: "top 55%", scrub: 0.6 },
+            },
+          );
+        }
+
+        // Garis aksen tiap bagian memanjang saat bagiannya masuk layar.
+        for (const rule of gsap.utils.toArray<HTMLElement>("[data-rule]")) {
+          gsap.fromTo(
+            rule,
+            { scaleX: 0 },
+            {
+              scaleX: 1,
+              transformOrigin: "left center",
+              ease: "none",
+              scrollTrigger: { trigger: rule, start: "top 92%", end: "top 60%", scrub: 0.5 },
+            },
+          );
+        }
+
+        // Angka besar tiap bagian bergerak pelan seperti tanda air.
+        for (const numeral of gsap.utils.toArray<HTMLElement>("[data-numeral]")) {
+          gsap.fromTo(
+            numeral,
+            { yPercent: 12 },
+            {
+              yPercent: -12,
+              ease: "none",
+              scrollTrigger: { trigger: numeral, start: "top bottom", end: "bottom top", scrub: 0.8 },
+            },
+          );
+        }
+
+        // Kartu "muncul" (pop-up) dan kartu lapisan membesar mengikuti gulir, supaya bagian
+        // terasa bertumpuk seperti situs interaktif — bukan sekadar muncul sekali.
+        for (const el of gsap.utils.toArray<HTMLElement>("[data-popup]")) {
+          gsap.fromTo(
+            el,
+            { scale: MOTION.popupScale, y: MOTION.distance * 2 },
+            { scale: 1, y: 0, ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "top 45%", scrub: 0.6 } },
+          );
+        }
+
+        gsap.utils.toArray<HTMLElement>("[data-layer]").forEach((el, index) => {
+          gsap.fromTo(
+            el,
+            { scale: MOTION.popupScale + index * 0.015, y: MOTION.distance * 1.5 },
+            { scale: 1, y: 0, ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "top 60%", scrub: 0.5 } },
+          );
+        });
+
+        // Garis kemajuan gulir di puncak halaman (dekorasi, tidak menyampaikan informasi).
+        const progress = scope.querySelector<HTMLElement>("[data-progress]");
+        if (progress) {
+          gsap.fromTo(progress, { scaleX: 0 }, { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.3 } });
+        }
       });
 
       // Parallax hanya di desktop; pergeseran kecil + scrub supaya tidak mengganggu membaca.
@@ -71,6 +183,32 @@ export function LandingMotion({ children }: { children: ReactNode }) {
               y: -MOTION.distance * 2,
               ease: "none",
               scrollTrigger: { trigger: target, start: "top bottom", end: "bottom top", scrub: 0.6 },
+            },
+          );
+        }
+
+        // Foto pita bergeser sedikit di dalam bingkainya (bukan seluruh bagian yang bergerak).
+        for (const band of gsap.utils.toArray<HTMLElement>("[data-band-image]")) {
+          gsap.fromTo(
+            band,
+            { yPercent: -7 },
+            {
+              yPercent: 7,
+              ease: "none",
+              scrollTrigger: { trigger: band.parentElement, start: "top bottom", end: "bottom top", scrub: 0.6 },
+            },
+          );
+        }
+
+        // Elemen foreground naik lebih cepat dari bagiannya — memberi kesan menonjol keluar.
+        for (const fg of gsap.utils.toArray<HTMLElement>("[data-foreground]")) {
+          gsap.fromTo(
+            fg,
+            { y: MOTION.distance * 3 },
+            {
+              y: -MOTION.distance * 2,
+              ease: "none",
+              scrollTrigger: { trigger: fg, start: "top bottom", end: "bottom top", scrub: 0.7 },
             },
           );
         }
@@ -108,5 +246,15 @@ export function LandingMotion({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  return <div ref={root}>{children}</div>;
+  return (
+    <div ref={root}>
+      {/* Garis kemajuan gulir: aksen pengisi di puncak halaman. */}
+      <div
+        aria-hidden
+        data-progress
+        className="fixed inset-x-0 top-0 z-50 h-0.5 origin-left scale-x-0 bg-gradient-to-r from-gold via-primary to-deep"
+      />
+      {children}
+    </div>
+  );
 }
