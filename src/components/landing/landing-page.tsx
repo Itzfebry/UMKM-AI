@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import type { ComponentType } from "react";
+import { AmbientCanvas } from "@/components/ambient-canvas";
 import { LandingMotion } from "./landing-motion";
 
 /* ------------------------------------------------------------------ */
@@ -220,8 +221,9 @@ const BUKTI = [
 
 function Hero() {
   return (
-    <section className="bg-surface pt-12 pb-14 sm:pt-16 sm:pb-16">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+    <section className="relative overflow-hidden bg-surface pt-12 pb-14 sm:pt-16 sm:pb-16">
+      <AmbientCanvas className="pointer-events-none absolute inset-0 size-full opacity-70" density={1100} />
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-7">
             <h1 className="landing-rise text-h1 text-ink sm:text-display">

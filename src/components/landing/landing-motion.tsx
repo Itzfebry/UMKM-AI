@@ -5,6 +5,7 @@ import Lenis from "lenis";
 import { useEffect, useRef, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { MOTION } from "@/lib/motion";
 
 /**
  * Gerak landing page: reveal saat masuk layar, parallax halus pada mock dashboard, dan smooth
@@ -38,13 +39,14 @@ export function LandingMotion({ children }: { children: ReactNode }) {
         const motionItems = gsap.utils.toArray<HTMLElement>("[data-motion]");
         if (motionItems.length === 0) return;
 
-        gsap.set(motionItems, { autoAlpha: 0, y: 24 });
+        gsap.set(motionItems, { autoAlpha: 0, y: MOTION.distance });
         ScrollTrigger.batch(motionItems, {
-          start: "top 88%",
+          start: MOTION.start,
           once: true,
-          interval: 0.12,
-          batchMax: 6,
-          onEnter: (batch) => gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power2.out", stagger: 0.08, overwrite: true }),
+          interval: MOTION.batchInterval,
+          batchMax: MOTION.batchMax,
+          onEnter: (batch) =>
+            gsap.to(batch, { autoAlpha: 1, y: 0, duration: MOTION.duration, ease: MOTION.easeIn, stagger: MOTION.stagger, overwrite: true }),
         });
 
         // Jaring pengaman: apa pun yang sudah di layar tetapi belum dipicu tetap ditampilkan.
@@ -64,9 +66,9 @@ export function LandingMotion({ children }: { children: ReactNode }) {
         for (const target of targets) {
           gsap.fromTo(
             target,
-            { y: 24 },
+            { y: MOTION.distance },
             {
-              y: -48,
+              y: -MOTION.distance * 2,
               ease: "none",
               scrollTrigger: { trigger: target, start: "top bottom", end: "bottom top", scrub: 0.6 },
             },

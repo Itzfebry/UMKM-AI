@@ -149,3 +149,8 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Bundel skill pihak ketiga (npx skills add) — dipasang lokal, tidak ikut repo
+.agents/
+.claude/
+.hermes/
