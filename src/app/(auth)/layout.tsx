@@ -1,39 +1,39 @@
 import Link from "next/link";
-import { AuthAurora } from "@/components/auth-aurora";
-import { AuthCard } from "@/components/auth-card";
-import { ScreenIntro } from "@/components/screen-intro";
+
+const FOOTER_LINKS = [
+  { href: "/", label: "Beranda" },
+  { href: "/#fitur", label: "Fitur" },
+  { href: "/#faq", label: "FAQ" },
+  { href: "/daftar", label: "Daftar" },
+];
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="relative isolate flex h-dvh flex-col items-center justify-center overflow-hidden bg-[#071318] px-4 py-10">
-      <AuthAurora />
+    <div className="flex min-h-dvh flex-col bg-surface">
+      <main className="flex flex-1 items-center justify-center px-4 py-12">
+        <div className="w-full max-w-sm">
+          <Link href="/" className="mb-6 flex items-center justify-center gap-2.5">
+            <span className="grid size-8 place-items-center rounded-lg bg-primary text-small font-bold text-white">
+              U
+            </span>
+            <span className="text-h3 font-bold text-primary">UMKM-AI</span>
+          </Link>
+          <div className="rounded-xl border border-deep/10 bg-white p-6 shadow-sm sm:p-8">{children}</div>
+        </div>
+      </main>
 
-      {/* Tanda air monogram raksasa: kedalaman latar tanpa menambah gambar. */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 select-none text-[26vw] font-bold leading-none tracking-tighter text-white/[0.035]"
-      >
-        AI
-      </span>
-
-      <ScreenIntro className="flex w-full flex-col items-center">
-        <Link
-          href="/"
-          data-intro
-          className="group mb-8 inline-flex items-center gap-2.5 text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
-        >
-          <span className="grid size-9 place-items-center border border-white/25 bg-white/10 text-small font-bold backdrop-blur transition group-hover:bg-white/15">
-            U
-          </span>
-          <span className="text-h3 font-bold tracking-tight">UMKM-AI</span>
-        </Link>
-
-        <AuthCard>{children}</AuthCard>
-
-        <p data-intro className="mt-6 max-w-sm text-center text-small text-white/70">
-          Manajemen kas usaha dengan AI untuk UMKM
-        </p>
-      </ScreenIntro>
-    </main>
+      <footer className="border-t border-deep/10 bg-white">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-small text-deep/70 sm:flex-row sm:px-6">
+          <p>© {new Date().getFullYear()} UMKM-AI · Manajemen kas usaha dengan AI</p>
+          <nav aria-label="Tautan footer" className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+            {FOOTER_LINKS.map((l) => (
+              <Link key={l.href} href={l.href} className="transition hover:text-primary">
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      </footer>
+    </div>
   );
 }
