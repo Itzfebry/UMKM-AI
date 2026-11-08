@@ -20,6 +20,10 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
       "scripts/**",
+      // Skill pihak ketiga hasil `npx skills add` (berisi bundel JS vendor).
+      ".agents/**",
+      ".claude/**",
+      ".hermes/**",
     ],
   },
   {
