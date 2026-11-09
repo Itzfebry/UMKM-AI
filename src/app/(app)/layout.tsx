@@ -12,7 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-dvh bg-background lg:pl-16">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-16 flex-col items-center border-r border-white/10 bg-deep py-4 lg:flex">
-        <Link href="/beranda" className="mb-4 flex size-11 items-center justify-center rounded-xl bg-white text-h3 font-bold text-primary-matte shadow-sm" title="UMKM-AI">
+        <Link href="/beranda" className="mb-4 flex size-11 items-center justify-center rounded-xl bg-primary text-h3 font-extrabold text-surface shadow-sm" title="UMKM-AI">
           U
         </Link>
         <AppNav variant="rail" logout={logout} />

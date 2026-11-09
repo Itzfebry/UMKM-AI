@@ -1,11 +1,5 @@
 import Link from "next/link";
-
-const FOOTER_LINKS = [
-  { href: "/", label: "Beranda" },
-  { href: "/#fitur", label: "Fitur" },
-  { href: "/#faq", label: "FAQ" },
-  { href: "/daftar", label: "Daftar" },
-];
+import { SiteFooter } from "@/components/site-footer";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -22,18 +16,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </main>
 
-      <footer className="border-t border-deep/10 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-small text-deep/70 sm:flex-row sm:px-6">
-          <p>© {new Date().getFullYear()} UMKM-AI · Manajemen kas usaha dengan AI</p>
-          <nav aria-label="Tautan footer" className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-            {FOOTER_LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className="transition hover:text-primary">
-                {l.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -9,9 +9,9 @@ const jakarta = Plus_Jakarta_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
-/* Monospace untuk label, kode, dan angka teknis — bagian dari bahasa "console". */
-const jetbrains = JetBrains_Mono({
-  variable: "--font-jetbrains",
+/* Inter untuk label, kode, dan angka teknis (token --font-mono). Body tetap Plus Jakarta Sans. */
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
 });
@@ -33,7 +33,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id">
-      <body className={`${jakarta.variable} ${jetbrains.variable} antialiased`}>
+      <body className={`${jakarta.variable} ${inter.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

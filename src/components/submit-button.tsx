@@ -7,14 +7,16 @@ export function SubmitButton({
   children,
   pendingLabel = "Menyimpan…",
   variant = "primary",
+  className = "",
 }: {
   children: React.ReactNode;
   pendingLabel?: string;
   variant?: "primary" | "secondary";
+  className?: string;
 }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className={btn[variant]} aria-busy={pending}>
+    <button type="submit" disabled={pending} className={`${btn[variant]} ${className}`} aria-busy={pending}>
       {pending ? (
         <span className="inline-flex items-center gap-2">
           {/* Animasi React (useFormStatus): batang kecil menari selama aksi berjalan. */}

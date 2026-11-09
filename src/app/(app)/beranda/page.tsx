@@ -46,7 +46,12 @@ export default async function BerandaPage() {
           />
         ) : null}
         <div className="flex flex-wrap items-center gap-2.5">
-          <h1 className="text-h1 leading-none text-deep">{business.name}</h1>
+          <div className="relative">
+            {plan.plan === "free" ? (
+              <span className="absolute -top-1.5 right-0 rounded bg-white px-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-deep/60 ring-1 ring-deep/10">Free</span>
+            ) : null}
+            <h1 className="text-h1 leading-none text-primary">{business.name}</h1>
+          </div>
           <PlanBadge plan={plan.plan} periodEnd={plan.currentPeriodEnd} />
         </div>
       </div>
@@ -60,21 +65,9 @@ export default async function BerandaPage() {
     </header>
   );
 
-  if (d.txCount === 0) {
-    return (
-      <>
-        {heading}
-        <EmptyState
-          title="Belum ada transaksi"
-          hint="Mulai dari satu catatan. Ringkasan dan analisis muncul setelah ada data."
-        />
-      </>
-    );
-  }
-
   // Analisis otomatis tanpa perintah: bila hari ini belum ada insight, buat setelah respons dikirim
   // (tanpa memblokir render). Tugas terjadwal juga membuatnya, jadi ini hanya jaring pengaman lokal.
-  if (!insight?.today) {
+  if (d.txCount > 0 && !insight?.today) {
     after(async () => {
       try {
         await ensureDailyInsight({ id: business.id, name: business.name });
@@ -123,18 +116,18 @@ export default async function BerandaPage() {
     </div>
   );
 
-  const metric = (label: string, value: number, previous: number) => (
+  const metric = (label: string, value: number, previous: number, tone: "in" | "out") => (
     <div className="flex h-full flex-col justify-between rounded-2xl border border-deep/10 bg-white p-5 shadow-sm">
       <p className="text-caption text-deep/75">{label}</p>
-      <p className="tabular mt-2 text-h2 text-deep">{formatRupiah(value)}</p>
+      <p className={`tabular mt-2 text-h2 ${tone === "in" ? "text-moss" : "text-primary"}`}>{formatRupiah(value)}</p>
       {delta(value, previous)}
     </div>
   );
 
   const flows = (
     <div className="grid h-full gap-3 sm:grid-cols-2">
-      {metric("Pendapatan bulan ini", d.income, d.prevIncome)}
-      {metric("Pengeluaran bulan ini", d.expense, d.prevExpense)}
+      {metric("Pendapatan bulan ini", d.income, d.prevIncome, "in")}
+      {metric("Pengeluaran bulan ini", d.expense, d.prevExpense, "out")}
     </div>
   );
 
@@ -169,7 +162,7 @@ export default async function BerandaPage() {
             </div>
             <span
               className={`tabular shrink-0 text-small font-semibold ${
-                OUTFLOW.has(t.type) ? "text-primary" : "text-deep"
+                OUTFLOW.has(t.type) ? "text-primary" : "text-moss"
               }`}
             >
               {OUTFLOW.has(t.type) ? "−" : "+"}
@@ -231,6 +224,14 @@ export default async function BerandaPage() {
   return (
     <>
       {heading}
+      {d.txCount === 0 ? (
+        <div className="mb-3">
+          <EmptyState
+            title="Belum ada transaksi"
+            hint="Mulai dari satu catatan. Ringkasan dan analisis muncul setelah ada data."
+          />
+        </div>
+      ) : null}
       <div className="flex flex-col gap-3 lg:hidden">
         {saldo}
         {alertsCard}

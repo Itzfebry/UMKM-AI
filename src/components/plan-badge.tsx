@@ -5,7 +5,7 @@ const dateFmt = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short
 
 /**
  * Lencana paket langganan di samping nama usaha. Pro: pil gelap bergradasi dengan aksen
- * emas dan zona tanggal yang dipisah (kesan premium). Free: tombol menuju halaman langganan.
+ * emas. Free: pil ringkas menuju halaman langganan.
  */
 export function PlanBadge({
   plan,
@@ -38,18 +38,11 @@ export function PlanBadge({
   return (
     <Link
       href="/langganan"
-      className="group inline-flex h-6 items-center overflow-hidden rounded-full border border-deep/25 bg-white text-deep transition hover:border-primary/50"
-      title="Paket Free — buka halaman langganan untuk upgrade"
+      title="Paket Free — upgrade ke Pro"
+      className={`inline-flex h-6 items-center gap-1 rounded-full bg-primary/10 text-[11px] font-semibold text-primary transition hover:bg-primary/15 ${compact ? "px-2" : "px-2.5"}`}
     >
-      <span className="flex h-full items-center gap-1 pl-2 pr-2 text-[11px] font-bold uppercase tracking-[0.08em] group-hover:text-primary">
-        <Sparkles className="size-3.5 shrink-0 text-deep/50 transition group-hover:text-primary" aria-hidden />
-        Free
-      </span>
-      {!compact ? (
-        <span className="flex h-full items-center border-l border-deep/15 bg-primary/5 px-2 text-[10.5px] font-semibold text-primary/90">
-          upgrade
-        </span>
-      ) : null}
+      <Sparkles className="size-3.5 shrink-0" aria-hidden />
+      Upgrade
     </Link>
   );
 }

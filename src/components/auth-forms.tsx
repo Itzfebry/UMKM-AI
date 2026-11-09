@@ -143,7 +143,7 @@ export function RegisterForm() {
           className={`${input} mt-1`}
         />
       </label>
-      <SubmitButton pendingLabel="Membuat...">Daftar</SubmitButton>
+      <SubmitButton pendingLabel="Membuat..." className="btn-shimmer">Daftar</SubmitButton>
       <p className="text-center text-small text-deep/80">
         Sudah punya akun?{" "}
         <Link href="/masuk" className="font-semibold text-primary hover:underline">

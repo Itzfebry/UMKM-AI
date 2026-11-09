@@ -13,14 +13,14 @@ export default async function OnboardingPage() {
   if (business) redirect("/beranda");
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-4 py-10">
-      <h1 className="text-h1 text-deep">Siapkan usaha Anda</h1>
-      <p className="mt-1 mb-6 text-small text-deep/80">
+    <>
+      <h1 className="text-center text-h1 text-white">Siapkan usaha Anda</h1>
+      <p className="mb-6 mt-1 text-center text-small text-white/70">
         Dua langkah singkat: profil usaha dan saldo kas saat ini. Saldo awal bukan pendapatan.
       </p>
-      <div className="rounded-xl border border-deep/10 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-deep/10 bg-white p-6 shadow-sm sm:p-8">
         <OnboardingForm />
       </div>
-    </main>
+    </>
   );
 }

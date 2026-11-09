@@ -20,6 +20,7 @@ import type { ComponentType, ReactNode } from "react";
 import { TiltFrame } from "@/components/tilt-frame";
 import { LandingMotion } from "./landing-motion";
 import { CookieConsent } from "@/components/cookie-consent";
+import { SiteFooter } from "@/components/site-footer";
 
 /*
  * Tema cerah: latar surface/putih, teks ink, garis rambut deep, label monospace huruf kapital.
@@ -28,8 +29,6 @@ import { CookieConsent } from "@/components/cookie-consent";
  */
 
 const NAV = [
-  { href: "#masalah", label: "Masalah" },
-  { href: "#pengguna", label: "Cocok untuk" },
   { href: "#fitur", label: "Fitur" },
   { href: "#analisis", label: "Analisis AI" },
   { href: "#cara-kerja", label: "Cara kerja" },
@@ -293,22 +292,24 @@ function Header() {
           </span>
         </Link>
 
-        <ul className={`hidden items-center gap-7 text-deep/85 lg:flex ${label}`}>
-          {NAV.map((n) => (
-            <li key={n.href}>
-              <a href={n.href} className={`rounded-sm transition hover:text-primary ${focus}`}>
-                {n.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div className="flex items-center gap-7">
+          <ul className={`hidden items-center gap-7 text-deep/85 lg:flex ${label}`}>
+            {NAV.map((n) => (
+              <li key={n.href}>
+                <a href={n.href} className={`rounded-sm transition hover:text-primary ${focus}`}>
+                  {n.label}
+                </a>
+              </li>
+            ))}
+          </ul>
 
-        <Link
-          href="/masuk"
-          className={`inline-flex min-h-11 items-center rounded-md px-3 text-small font-semibold text-primary transition hover:text-[#C01717] ${focus}`}
-        >
-          Login
-        </Link>
+          <Link
+            href="/masuk"
+            className={`inline-flex min-h-11 items-center rounded-md px-3 text-small font-semibold text-primary transition hover:text-[#C01717] ${focus}`}
+          >
+            Login
+          </Link>
+        </div>
       </nav>
     </header>
   );
@@ -993,64 +994,6 @@ function AjakanTerakhir() {
   );
 }
 
-function Footer() {
-  return (
-    <footer className="border-t border-deep/10 bg-surface">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-12">
-        <div className="md:col-span-5">
-          <p className="text-h3 font-bold text-primary">
-            UMKM-AI
-            <span className="ml-1 align-super font-mono text-[9px] text-deep/50">®</span>
-          </p>
-          <p className="mt-3 max-w-sm text-small text-deep/80">
-            Aplikasi pencatatan keuangan dan analisis bisnis berbasis AI untuk UMKM Indonesia. Versi pertama fokus
-            pada catatan yang rapi dan angka yang mudah dipahami.
-          </p>
-        </div>
-
-        <nav aria-label="Tautan footer" className="grid grid-cols-2 gap-x-8 gap-y-3 md:col-span-4">
-          {NAV.map((n) => (
-            <a key={n.href} href={n.href} className={`text-small text-deep/80 transition hover:text-primary ${focus}`}>
-              {n.label}
-            </a>
-          ))}
-          <Link href="/masuk" className={`text-small text-deep/80 transition hover:text-primary ${focus}`}>
-            Masuk
-          </Link>
-          <Link href="/daftar" className={`text-small text-deep/80 transition hover:text-primary ${focus}`}>
-            Daftar
-          </Link>
-        </nav>
-
-        <div className="md:col-span-3">
-          <p className={`text-deep/50 ${label}`}>status</p>
-          <p className="mt-3 font-mono text-[11px] text-deep/80">v1 · pencatatan, laporan, analisis AI</p>
-          <p className="mt-1 font-mono text-[11px] text-deep/80">proyek portofolio · 2026</p>
-        </div>
-      </div>
-
-      <div className="border-t border-deep/10">
-        <div
-          className={`mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-deep/80 sm:px-6 ${label}`}
-        >
-          <span className="flex flex-wrap items-center gap-2">
-            © {new Date().getFullYear()} UMKM-AI · By
-            <a
-              href="https://itzai.site"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex items-center rounded-full border border-deep/15 bg-white px-2.5 py-1 font-semibold text-primary shadow-sm transition-colors hover:border-primary/40 hover:bg-primary hover:text-white ${focus}`}
-            >
-              ITZ AI
-              <span className="sr-only"> (buka itzai.site di tab baru)</span>
-            </a>
-          </span>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 export function LandingPage() {
   return (
     <LandingMotion>
@@ -1074,7 +1017,7 @@ export function LandingPage() {
           <Harga />
           <AjakanTerakhir />
         </main>
-        <Footer />
+        <SiteFooter />
         <CookieConsent />
       </div>
     </LandingMotion>

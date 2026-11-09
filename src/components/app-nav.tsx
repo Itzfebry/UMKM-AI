@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bot, CreditCard, FileBarChart, LayoutDashboard, LogOut, Menu, ReceiptText, Settings, Users } from "lucide-react";
+import { Bot, CreditCard, FileBarChart, LayoutDashboard, Menu, ReceiptText, Settings, Users } from "lucide-react";
+import { LogoutButton } from "@/components/logout-button";
 
 const NAV_ITEMS = {
   beranda: { href: "/beranda", label: "Beranda", icon: LayoutDashboard },
@@ -44,16 +45,10 @@ export function AppNav({ variant, logout }: { variant: "rail" | "bottom"; logout
             <span className="sr-only">{label}</span>
           </Link>
         ))}
-        <form action={logout} className="mt-auto">
-          <button
-            type="submit"
-            title="Keluar"
-            className="flex size-11 items-center justify-center rounded-xl bg-white text-primary-matte shadow-sm hover:bg-white/90"
-          >
-            <LogOut className="size-5" aria-hidden />
-            <span className="sr-only">Keluar</span>
-          </button>
-        </form>
+        <LogoutButton
+          action={logout}
+          className="mt-auto flex size-11 items-center justify-center rounded-xl text-white/80 transition hover:bg-white/10 hover:text-white"
+        />
       </nav>
     );
   }

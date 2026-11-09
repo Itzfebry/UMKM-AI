@@ -28,7 +28,7 @@ export function Card({
 export function PageHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <header className="mb-4">
-      <h1 className="text-h1 text-deep">{title}</h1>
+      <h1 className="text-h1 text-primary">{title}</h1>
       {subtitle ? <p className="mt-1 text-small text-deep/90">{subtitle}</p> : null}
     </header>
   );

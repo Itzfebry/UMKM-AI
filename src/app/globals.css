@@ -43,7 +43,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-plus-jakarta);
-  --font-mono: var(--font-jetbrains);
+  --font-mono: var(--font-inter);
 
   /* Hierarki tipografi — lihat docs/DESIGN.md */
   /* Judul hero: besar dan rapat. Skala cair supaya 1440 px tidak terasa seperti dokumen. */
