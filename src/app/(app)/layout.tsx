@@ -3,6 +3,7 @@ import { requireBusiness } from "@/server/lib/access";
 import { logout } from "@/server/modules/auth/actions";
 import { AppNav } from "@/components/app-nav";
 import { PlanBadge } from "@/components/plan-badge";
+import { ReadOnlyNotice } from "@/components/read-only-notice";
 import { getPlanState } from "@/server/modules/billing/plan";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -39,6 +40,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </div>
 
       <AppNav variant="bottom" logout={logout} />
+      {plan.readOnly ? <ReadOnlyNotice /> : null}
     </div>
   );
 }

@@ -179,8 +179,8 @@ export async function listBusinessOverview(period: string, limit = 25): Promise<
       ...item,
       planLabel: PLAN_LABEL[plan],
       effectivePlan: effective,
-      aiQuota: PLAN_LIMITS[effective].aiRequestsPerMonth,
-      txQuota: PLAN_LIMITS[effective].transactionsPerMonth,
+      aiQuota: PLAN_LIMITS[effective].aiRequests,
+      txQuota: Number.POSITIVE_INFINITY,
     };
   });
 }

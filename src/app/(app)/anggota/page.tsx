@@ -96,6 +96,7 @@ export default async function AnggotaPage() {
             <h2 className="text-h3 text-deep">Undang anggota</h2>
             <p className="mt-1 text-caption text-deep/70">
               Paket {PLAN_LABEL[plan.plan]} maksimal {plan.limits.members} anggota aktif. Terpakai {members.length + invitations.length}.
+              {plan.readOnly ? " Masa aktif Free sudah habis, jadi undangan baru diblokir sampai upgrade ke Pro." : ""}
             </p>
             {canManage ? (
               <div className="mt-3">

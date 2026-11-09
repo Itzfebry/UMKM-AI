@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/server/db";
 import { auditEvents, businesses } from "@/server/db/schema";
-import { requireBusiness, requireRole } from "@/server/lib/access";
+import { requireRole, requireWritableBusiness } from "@/server/lib/access";
 import { createSignedUrl, storageConfigured, uploadPrivateFile } from "@/server/lib/storage";
 
 export type BrandingState = { error?: string; ok?: boolean; info?: string } | undefined;
@@ -36,7 +36,7 @@ async function saveImage(
   maxBytes: number,
   formData: FormData,
 ): Promise<BrandingState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   try {
     await requireRole(business.id, user.id, ["owner", "admin"]);
   } catch (error) {

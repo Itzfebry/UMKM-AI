@@ -33,9 +33,11 @@ export default async function AiPage() {
             configured={configured}
             quota={{
               used: plan.usage.aiRequests,
-              limit: plan.limits.aiRequestsPerMonth,
+              limit: plan.limits.aiRequests,
               plan: PLAN_LABEL[plan.plan],
+              lifetime: plan.limits.aiPeriod === "lifetime",
               resetLabel: periodResetLabel(),
+              readOnly: plan.readOnly,
             }}
           />
 

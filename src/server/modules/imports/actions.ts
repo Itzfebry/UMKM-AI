@@ -11,8 +11,7 @@ import {
   transactionAuditLogs,
   transactions,
 } from "@/server/db/schema";
-import { requireBusiness } from "@/server/lib/access";
-import { assertTransactionQuota, getPlanState } from "@/server/modules/billing/plan";
+import { requireBusiness, requireWritableBusiness } from "@/server/lib/access";
 import { parseTransactionsCsv, type ParsedRow } from "./parse";
 export type ImportState = {
   error?: string;
@@ -89,7 +88,7 @@ export async function previewImport(_prev: ImportState, formData: FormData): Pro
 }
 
 export async function commitImport(_prev: ImportState, formData: FormData): Promise<ImportState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   const csv = String(formData.get("csv") ?? "");
   if (!csv.trim()) return { error: "Tidak ada data untuk diimpor." };
 
@@ -99,9 +98,6 @@ export async function commitImport(_prev: ImportState, formData: FormData): Prom
   }
 
   try {
-    const state = await getPlanState(business.id);
-    assertTransactionQuota(state, checked.valid.length);
-
     await db.transaction(async (tx) => {
       const [batch] = await tx
         .insert(importBatches)

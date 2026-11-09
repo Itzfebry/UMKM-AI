@@ -1,7 +1,7 @@
 import { and, count, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/server/db";
 import { openingBalances, transactions } from "@/server/db/schema";
-import { getPlanState, PLAN_LABEL } from "@/server/modules/billing/plan";
+import { getPlanState } from "@/server/modules/billing/plan";
 import { getDebtSummary } from "@/server/modules/debts/queries";
 import { jakartaDate } from "@/server/modules/ledger/queries";
 import { formatRupiah } from "@/lib/format";
@@ -68,21 +68,34 @@ export async function getBusinessAlerts(businessId: string): Promise<Alert[]> {
     });
   }
 
-  const txLeft = plan.limits.transactionsPerMonth - plan.usage.transactions;
-  if (Number.isFinite(txLeft) && txLeft <= 10) {
+  if (plan.readOnly) {
     alerts.push({
-      level: txLeft <= 0 ? "danger" : "warning",
-      title: txLeft <= 0 ? "Kuota transaksi bulan ini habis" : `Sisa kuota transaksi bulan ini ${txLeft}`,
-      hint: `Paket ${PLAN_LABEL[plan.plan]} dibatasi ${plan.limits.transactionsPerMonth} transaksi/bulan. Data lama tetap bisa dibaca.`,
+      level: "danger",
+      title: "Masa aktif paket Free sudah habis",
+      hint: "Akun kini mode baca saja: data masih bisa dibaca dan diekspor, tetapi pencatatan baru diblokir. Upgrade ke Pro untuk melanjutkan.",
+      href: "/langganan",
+    });
+  } else if (plan.plan === "free" && plan.trialDaysLeft <= 2) {
+    alerts.push({
+      level: "warning",
+      title: `Masa aktif Free tersisa ${plan.trialDaysLeft} hari`,
+      hint: "Setelah masa aktif habis, akun beralih ke mode baca saja (ekspor tetap bisa). Upgrade ke Pro kapan saja.",
       href: "/langganan",
     });
   }
 
-  const aiLeft = plan.limits.aiRequestsPerMonth - plan.usage.aiRequests;
+  const aiLeft = plan.limits.aiRequests - plan.usage.aiRequests;
   if (aiLeft <= 2) {
     alerts.push({
       level: aiLeft <= 0 ? "warning" : "info",
-      title: aiLeft <= 0 ? "Kuota AI bulan ini habis" : `Sisa kuota AI bulan ini ${aiLeft}`,
+      title:
+        aiLeft <= 0
+          ? plan.limits.aiPeriod === "lifetime"
+            ? "Kuota AI Free sudah habis"
+            : "Kuota AI bulan ini habis"
+          : plan.limits.aiPeriod === "lifetime"
+            ? `Sisa kuota AI Free ${aiLeft}`
+            : `Sisa kuota AI bulan ini ${aiLeft}`,
       hint: "Fitur pencatatan dan laporan tetap berjalan walau kuota AI habis.",
       href: "/langganan",
     });

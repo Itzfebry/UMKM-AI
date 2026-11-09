@@ -109,7 +109,7 @@ export default async function MenuPage() {
       purpose: "Langganan, kuota bulanan, dan keamanan akun.",
       icon: CreditCard,
       items: [
-        { href: "/langganan", label: "Langganan", hint: "Paket Free/Pro, kuota bulanan, invoice, unggah bukti bayar manual.", icon: CreditCard },
+        { href: "/langganan", label: "Langganan", hint: "Paket Free/Pro, masa aktif, kuota AI, invoice, unggah bukti bayar manual.", icon: CreditCard },
         { href: "/pengaturan", label: "Pengaturan", hint: "Ganti kata sandi, atur kanal notifikasi, hapus usaha permanen.", icon: Settings },
       ],
     },
@@ -135,7 +135,10 @@ export default async function MenuPage() {
               <PlanBadge plan={plan.plan} periodEnd={plan.currentPeriodEnd} compact />
             </div>
             <span className="text-caption text-white/70">
-              {PLAN_LABEL[plan.plan]} · kuota AI {plan.usage.aiRequests}/{plan.limits.aiRequestsPerMonth} · direset {periodResetLabel()}
+              {PLAN_LABEL[plan.plan]} ·{" "}
+              {plan.limits.aiPeriod === "lifetime"
+                ? `kuota AI ${plan.usage.aiRequests}/${plan.limits.aiRequests} (masa Free)`
+                : `kuota AI ${plan.usage.aiRequests}/${plan.limits.aiRequests} · direset ${periodResetLabel()}`}
             </span>
           </div>
 

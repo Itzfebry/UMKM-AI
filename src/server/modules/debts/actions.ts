@@ -10,8 +10,7 @@ import {
   transactionAuditLogs,
   transactions,
 } from "@/server/db/schema";
-import { requireBusiness, requireRole } from "@/server/lib/access";
-import { assertTransactionQuota, getPlanState } from "@/server/modules/billing/plan";
+import { requireRole, requireWritableBusiness } from "@/server/lib/access";
 import { debtPaymentSchema, debtSchema } from "./schema";
 import { PAYMENT_TYPE } from "./types";
 
@@ -32,7 +31,7 @@ async function claimKey(businessId: string, scope: string, formData: FormData) {
 }
 
 export async function createDebt(_prev: DebtActionState, formData: FormData): Promise<DebtActionState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   const parsed = debtSchema.safeParse({
     kind: formData.get("kind"),
     counterparty: formData.get("counterparty"),
@@ -81,7 +80,7 @@ export async function createDebt(_prev: DebtActionState, formData: FormData): Pr
 }
 
 export async function recordDebtPayment(_prev: DebtActionState, formData: FormData): Promise<DebtActionState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   const parsed = debtPaymentSchema.safeParse({
     debtId: formData.get("debtId"),
     amount: formData.get("amount"),
@@ -95,7 +94,6 @@ export async function recordDebtPayment(_prev: DebtActionState, formData: FormDa
   if (!claim) return { ok: true };
 
   try {
-    assertTransactionQuota(await getPlanState(business.id));
     await db.transaction(async (tx) => {
       const [debt] = await tx
         .select()
@@ -153,7 +151,7 @@ export async function recordDebtPayment(_prev: DebtActionState, formData: FormDa
 }
 
 export async function restoreDebt(_prev: DebtActionState, formData: FormData): Promise<DebtActionState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   await requireRole(business.id, user.id, ["owner", "admin"]);
 
   const id = String(formData.get("id") ?? "");
@@ -183,7 +181,7 @@ export async function restoreDebt(_prev: DebtActionState, formData: FormData): P
 }
 
 export async function softDeleteDebt(_prev: DebtActionState, formData: FormData): Promise<DebtActionState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   await requireRole(business.id, user.id, ["owner", "admin"]);
 
   const id = String(formData.get("id") ?? "");

@@ -75,7 +75,7 @@ export function AiChat({
   quota,
 }: {
   configured: boolean;
-  quota: { used: number; limit: number; plan: string; resetLabel: string };
+  quota: { used: number; limit: number; plan: string; resetLabel: string; lifetime: boolean; readOnly: boolean };
 }) {
   const [state, action] = useActionState<AiState, FormData>(askAi, {});
   const [history, setHistory] = useState<AiState[]>([]);
@@ -124,7 +124,9 @@ export function AiChat({
           ))}
         </div>
         <p className="text-caption text-deep/70">
-          Paket {quota.plan} · sisa kuota AI bulan ini {remaining} dari {quota.limit} · direset {quota.resetLabel}
+          Paket {quota.plan} · sisa kuota AI {remaining} dari {quota.limit}
+          {quota.lifetime ? " (total selama masa Free)" : ` · direset ${quota.resetLabel}`}
+          {quota.readOnly ? " · masa aktif Free habis, AI terkunci sampai upgrade" : ""}
           {configured ? "" : " · AI belum dikonfigurasi di server"}
         </p>
         <ErrorText>{state.error}</ErrorText>

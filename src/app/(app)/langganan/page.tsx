@@ -5,7 +5,7 @@ import { formatRupiah } from "@/lib/format";
 import { storageConfigured } from "@/server/lib/storage";
 import { requireBusiness } from "@/server/lib/access";
 import { getSubscriptionOverview } from "@/server/modules/billing/queries";
-import { PLAN_LABEL, PLAN_LIMITS, PRICE_PRO, currentPeriod, periodResetLabel } from "@/server/modules/billing/plan";
+import { PLAN_LABEL, PLAN_LIMITS, PRICE_PRO, periodResetLabel } from "@/server/modules/billing/plan";
 
 export const metadata: Metadata = { title: "Langganan" };
 
@@ -39,12 +39,26 @@ export default async function LanggananPage() {
             Status {STATUS_LABEL[plan.status] ?? plan.status}
             {plan.currentPeriodEnd ? ` · berlaku sampai ${plan.currentPeriodEnd.toISOString().slice(0, 10)}` : ""}
           </p>
+          {plan.readOnly ? (
+            <p className="mt-3 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-small font-semibold text-primary">
+              Masa aktif Free sudah habis. Akun dalam mode baca saja: dashboard, laporan, dan ekspor (CSV/XLSX/PDF) tetap bisa; pencatatan
+              baru diblokir. Upgrade ke Pro untuk kembali mencatat.
+            </p>
+          ) : plan.plan === "free" ? (
+            <p className="mt-3 rounded-lg border border-deep/15 bg-surface px-3 py-2 text-small text-deep/85">
+              Masa aktif Free tersisa <strong>{plan.trialDaysLeft} hari</strong> (sampai {plan.trialEndsAt.toISOString().slice(0, 10)}).
+              Setelah itu akun menjadi baca saja; ekspor tetap bisa.
+            </p>
+          ) : null}
           <ul className="mt-3 list-disc space-y-1 pl-5 text-small text-deep/80">
-            <li>Transaksi bulan ini {plan.usage.transactions} dari {plan.limits.transactionsPerMonth === Infinity ? "tanpa batas" : plan.limits.transactionsPerMonth} (periode {currentPeriod()}).</li>
-            <li>Kuota AI bulan ini {plan.usage.aiRequests} dari {plan.limits.aiRequestsPerMonth}.</li>
-            <li>Kuota direset {periodResetLabel()}.</li>
+            <li>Transaksi: tanpa batas.</li>
+            <li>
+              {plan.limits.aiPeriod === "lifetime"
+                ? `Kuota AI ${plan.usage.aiRequests} dari ${plan.limits.aiRequests} (total selama masa Free).`
+                : `Kuota AI bulan ini ${plan.usage.aiRequests} dari ${plan.limits.aiRequests}, direset ${periodResetLabel()}.`}
+            </li>
             <li>Slot anggota {plan.limits.members} (paket Pro {PLAN_LIMITS.pro.members}, Free {PLAN_LIMITS.free.members}).</li>
-            <li>Data historis tetap bisa dibaca walau kuota habis.</li>
+            <li>Data historis tetap bisa dibaca dan diekspor kapan saja.</li>
           </ul>
           {canManage ? (
             <div className="mt-4 flex flex-col gap-2">

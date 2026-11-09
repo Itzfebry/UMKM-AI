@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/server/db";
 import { auditEvents, invitations, memberships, users } from "@/server/db/schema";
-import { requireBusiness, requireRole, requireUser } from "@/server/lib/access";
+import { requireRole, requireUser, requireWritableBusiness } from "@/server/lib/access";
 import { appUrl, createNotification, sendEmail } from "@/server/lib/email";
 import { getPlanState, PLAN_LABEL } from "@/server/modules/billing/plan";
 
@@ -26,7 +26,7 @@ async function activeMemberCount(businessId: string) {
 }
 
 export async function inviteMember(_prev: MemberState, formData: FormData): Promise<MemberState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   try {
     await requireRole(business.id, user.id, ["owner", "admin"]);
   } catch (error) {
@@ -90,7 +90,7 @@ export async function inviteMember(_prev: MemberState, formData: FormData): Prom
 }
 
 export async function revokeInvitation(formData: FormData) {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   await requireRole(business.id, user.id, ["owner", "admin"]);
   const id = String(formData.get("id") ?? "");
   await db
@@ -127,6 +127,7 @@ export async function acceptInvitation(_prev: MemberState, formData: FormData): 
   if (existing.length) return { error: "Anda sudah menjadi anggota bisnis ini." };
 
   const plan = await getPlanState(invitation.businessId);
+  if (plan.readOnly) return { error: "Masa aktif paket Free bisnis ini sudah habis. Minta pemilik upgrade ke Pro dulu." };
   const members = await activeMemberCount(invitation.businessId);
   if (members >= plan.limits.members) {
     return { error: `Slot anggota paket ${PLAN_LABEL[plan.plan]} sudah penuh. Minta pemilik upgrade paket.` };
@@ -157,7 +158,7 @@ export async function acceptInvitation(_prev: MemberState, formData: FormData): 
 }
 
 export async function updateMemberRole(formData: FormData) {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   await requireRole(business.id, user.id, ["owner"]);
   const membershipId = String(formData.get("membershipId") ?? "");
   const role = String(formData.get("role") ?? "");
@@ -182,7 +183,7 @@ export async function updateMemberRole(formData: FormData) {
 }
 
 export async function removeMember(formData: FormData) {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   await requireRole(business.id, user.id, ["owner"]);
   const membershipId = String(formData.get("membershipId") ?? "");
   const [target] = await db
@@ -205,7 +206,7 @@ export async function removeMember(formData: FormData) {
 
 /** FR-MEM-05..08: butuh autentikasi ulang, atomik, dan tidak boleh ada dua pemilik. */
 export async function transferOwnership(_prev: MemberState, formData: FormData): Promise<MemberState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   try {
     await requireRole(business.id, user.id, ["owner"]);
   } catch (error) {

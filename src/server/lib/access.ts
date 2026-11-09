@@ -4,6 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db } from "@/server/db";
 import { businesses, memberships, openingBalances } from "@/server/db/schema";
+import { assertWritable, getPlanState } from "@/server/modules/billing/plan";
 
 export type Role = "owner" | "admin" | "staff";
 
@@ -44,6 +45,14 @@ export const requireBusiness = cache(async () => {
   const user = await requireUser();
   const business = await getActiveBusiness(user.id);
   if (!business) redirect("/onboarding");
+  return { user, business };
+});
+
+/** Sama seperti requireBusiness, tapi menolak saat paket Free sudah lewat masa aktif (read-only).
+ *  Dipakai oleh aksi tulis; billing (bayar) dan ekspor sengaja memakai requireBusiness. */
+export const requireWritableBusiness = cache(async () => {
+  const { user, business } = await requireBusiness();
+  assertWritable(await getPlanState(business.id));
   return { user, business };
 });
 

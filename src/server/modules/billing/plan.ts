@@ -1,15 +1,19 @@
-import { and, count, eq, gte, isNull, lte, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/server/db";
-import { aiUsage, subscriptions, transactions } from "@/server/db/schema";
+import { aiUsage, businesses, subscriptions } from "@/server/db/schema";
 import { jakartaDate } from "@/server/modules/ledger/queries";
 
 export type Plan = "free" | "pro";
 
 export const PRICE_PRO = 49_000;
+/** Masa aktif Free dihitung dari bisnis dibuat (onboarding selesai). */
+export const FREE_TRIAL_DAYS = 7;
+/** Kuota AI Free: total selama masa Free, bukan per bulan. */
+export const FREE_AI_TOTAL = 5;
 
-export const PLAN_LIMITS: Record<Plan, { transactionsPerMonth: number; aiRequestsPerMonth: number; members: number }> = {
-  free: { transactionsPerMonth: 100, aiRequestsPerMonth: 10, members: 1 },
-  pro: { transactionsPerMonth: Number.POSITIVE_INFINITY, aiRequestsPerMonth: 200, members: 5 },
+export const PLAN_LIMITS: Record<Plan, { aiRequests: number; aiPeriod: "lifetime" | "month"; members: number }> = {
+  free: { aiRequests: FREE_AI_TOTAL, aiPeriod: "lifetime", members: 1 },
+  pro: { aiRequests: 200, aiPeriod: "month", members: 5 },
 };
 
 export const PLAN_LABEL: Record<Plan, string> = { free: "Free", pro: "Pro" };
@@ -29,7 +33,7 @@ export function currentPeriod() {
   return jakartaDate().slice(0, 7);
 }
 
-/** Kuota bulanan direset pada awal bulan berikutnya (FR-PLAN-01). */
+/** Kuota bulanan Pro direset pada awal bulan berikutnya (FR-PLAN-01). */
 export function periodResetLabel() {
   const [year, month] = jakartaDate().split("-").map(Number);
   const next = new Date(Date.UTC(month === 12 ? year + 1 : year, month === 12 ? 0 : month, 1));
@@ -44,40 +48,44 @@ export function effectivePlan(input: { plan: Plan; status: string; currentPeriod
 }
 
 /**
- * Paket efektif. Pro hanya berlaku bila statusnya masih mengikat; sesudah periode
- * berbayar berakhir masih ada masa tenggang 7 hari (FR-SUB-16), lalu kembali ke Free.
+ * Paket efektif + status masa aktif Free. Free berlaku 7 hari sejak bisnis dibuat;
+ * sesudahnya akun jadi read-only. Pro mengikat selama statusnya berlaku, plus masa
+ * tenggang 7 hari (FR-SUB-16), lalu kembali ke Free.
  */
 export async function getPlanState(businessId: string) {
-  const [row] = await db.select().from(subscriptions).where(eq(subscriptions.businessId, businessId)).limit(1);
-  const plan: Plan = row ? effectivePlan({ plan: row.plan, status: row.status, currentPeriodEnd: row.currentPeriodEnd }) : "free";
-
-  const [[txUsed], [aiUsed]] = await Promise.all([
+  const [[sub], [biz], [aiTotal], [aiPeriod]] = await Promise.all([
+    db.select().from(subscriptions).where(eq(subscriptions.businessId, businessId)).limit(1),
+    db.select({ createdAt: businesses.createdAt }).from(businesses).where(eq(businesses.id, businessId)).limit(1),
     db
-      .select({ total: count() })
-      .from(transactions)
-      .where(
-        and(
-          eq(transactions.businessId, businessId),
-          isNull(transactions.deletedAt),
-          gte(transactions.transactionDate, monthBounds().from),
-          lte(transactions.transactionDate, monthBounds().to),
-        ),
-      ),
+      .select({ total: sql<number>`coalesce(sum(${aiUsage.requests}), 0)::int` })
+      .from(aiUsage)
+      .where(eq(aiUsage.businessId, businessId)),
     db
-      .select({ total: sql<number>`coalesce(${aiUsage.requests}, 0)::int` })
+      .select({ total: sql<number>`coalesce(sum(${aiUsage.requests}), 0)::int` })
       .from(aiUsage)
       .where(and(eq(aiUsage.businessId, businessId), eq(aiUsage.period, currentPeriod()))),
   ]);
 
+  const plan: Plan = sub ? effectivePlan({ plan: sub.plan, status: sub.status, currentPeriodEnd: sub.currentPeriodEnd }) : "free";
+  const limits = PLAN_LIMITS[plan];
+
+  const createdAt = biz?.createdAt ?? new Date();
+  const trialEndsAt = new Date(createdAt.getTime() + FREE_TRIAL_DAYS * DAY);
+  const trialExpired = Date.now() >= trialEndsAt.getTime();
+  const readOnly = plan === "free" && trialExpired;
+
   return {
     plan,
-    status: row?.status ?? "free",
-    currentPeriodEnd: row?.currentPeriodEnd ?? null,
-    cancelAtPeriodEnd: row?.cancelAtPeriodEnd ?? false,
-    limits: PLAN_LIMITS[plan],
+    status: sub?.status ?? "free",
+    currentPeriodEnd: sub?.currentPeriodEnd ?? null,
+    cancelAtPeriodEnd: sub?.cancelAtPeriodEnd ?? false,
+    limits,
+    readOnly,
+    trialEndsAt,
+    trialExpired,
+    trialDaysLeft: Math.max(0, Math.ceil((trialEndsAt.getTime() - Date.now()) / DAY)),
     usage: {
-      transactions: Number(txUsed?.total ?? 0),
-      aiRequests: Number(aiUsed?.total ?? 0),
+      aiRequests: Number((limits.aiPeriod === "lifetime" ? aiTotal : aiPeriod)?.total ?? 0),
       period: monthBounds(),
     },
   };
@@ -85,17 +93,24 @@ export async function getPlanState(businessId: string) {
 
 export type PlanState = Awaited<ReturnType<typeof getPlanState>>;
 
-/** Batas transaksi Free tidak menghapus data; hanya menolak penambahan (FR-PLAN-03). */
-export function assertTransactionQuota(state: PlanState, additional = 1) {
-  if (state.usage.transactions + additional > state.limits.transactionsPerMonth) {
+/** Masa aktif Free habis = read-only: semua tulis ditolak, baca + ekspor tetap jalan. */
+export function assertWritable(state: PlanState) {
+  if (state.readOnly) {
     throw new Error(
-      `Paket ${PLAN_LABEL[state.plan]} maksimal ${state.limits.transactionsPerMonth} transaksi per bulan. Data lama tetap bisa dibaca; upgrade ke Pro untuk menambah.`,
+      `Masa aktif paket Free (${FREE_TRIAL_DAYS} hari) sudah habis. Akun beralih ke mode baca saja; ekspor tetap bisa, upgrade ke Pro untuk kembali mencatat.`,
     );
   }
 }
 
 export function assertAiQuota(state: PlanState) {
-  if (state.usage.aiRequests >= state.limits.aiRequestsPerMonth) {
-    throw new Error(`Kuota AI paket ${PLAN_LABEL[state.plan]} habis untuk bulan ini. Fitur keuangan tetap berjalan.`);
+  if (state.readOnly) {
+    throw new Error("Masa aktif paket Free sudah habis. Upgrade ke Pro untuk memakai analis AI lagi.");
+  }
+  if (state.usage.aiRequests >= state.limits.aiRequests) {
+    throw new Error(
+      state.limits.aiPeriod === "lifetime"
+        ? `Kuota AI paket Free habis (${state.limits.aiRequests} kali percobaan). Upgrade ke Pro untuk melanjutkan analisis.`
+        : "Kuota AI paket Pro habis untuk bulan ini. Fitur keuangan tetap berjalan.",
+    );
   }
 }

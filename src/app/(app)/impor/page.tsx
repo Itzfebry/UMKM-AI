@@ -30,7 +30,8 @@ export default async function ImporPage() {
           </ol>
           <p className="mt-3 text-caption text-deep/70">
             Maksimal {MAX_IMPORT_ROWS} baris per berkas. Baris yang sama tidak bisa masuk dua kali. Impor tidak menyentuh saldo
-            awal, dan paket {PLAN_LABEL[plan.plan]} saat ini terpakai {plan.usage.transactions} transaksi bulan ini.
+            awal, dan paket {PLAN_LABEL[plan.plan]} tanpa batas transaksi.
+            {plan.readOnly ? " Masa aktif Free sudah habis, jadi impor baru diblokir sampai upgrade ke Pro." : ""}
           </p>
         </Card>
       </div>

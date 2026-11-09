@@ -9,8 +9,7 @@ import {
   transactionAuditLogs,
   transactions,
 } from "@/server/db/schema";
-import { requireBusiness, requireRole } from "@/server/lib/access";
-import { assertTransactionQuota, getPlanState } from "@/server/modules/billing/plan";
+import { requireRole, requireWritableBusiness } from "@/server/lib/access";
 import { transactionSchema } from "./schema";
 import type { TransactionType } from "./types";
 
@@ -50,7 +49,7 @@ export async function createTransaction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   const parsed = parse(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const data = parsed.data;
@@ -58,7 +57,6 @@ export async function createTransaction(
   const key = String(formData.get("idempotencyKey") ?? "").slice(0, 100) || crypto.randomUUID();
 
   try {
-    assertTransactionQuota(await getPlanState(business.id));
     const categoryId = await assertCategory(business.id, data.categoryId || undefined, data.type);
 
     // Idempotensi: klaim kunci dulu; klik ganda tidak membuat transaksi kedua.
@@ -110,7 +108,7 @@ export async function updateTransaction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   const id = String(formData.get("id") ?? "");
   const parsed = parse(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
@@ -152,7 +150,7 @@ export async function softDeleteTransaction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   await requireRole(business.id, user.id, ["owner", "admin"]);
 
   const id = String(formData.get("id") ?? "");
@@ -187,7 +185,7 @@ export async function softDeleteTransaction(
 }
 
 export async function restoreTransaction(id: string): Promise<ActionState> {
-  const { user, business } = await requireBusiness();
+  const { user, business } = await requireWritableBusiness();
   await requireRole(business.id, user.id, ["owner", "admin"]);
 
   const [before] = await db
