@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Card, PageHeader } from "@/components/ui";
 import { CancelSubscriptionForm, CreateInvoiceForm, UploadProofForm } from "@/components/billing-forms";
 import { formatRupiah } from "@/lib/format";
@@ -83,6 +84,16 @@ export default async function LanggananPage() {
               ? "Bukti disimpan di bucket privat."
               : "Storage privat belum dikonfigurasi: bukti hanya berupa keterangan teks. Isi NEXT_PUBLIC_SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY untuk menyimpan berkas."}
           </p>
+          <figure className="mt-4 flex flex-col items-center gap-2 rounded-xl border border-deep/10 bg-surface p-3 shadow-sm">
+            <Image
+              src="/images/QRIS.jpeg"
+              alt="QRIS pembayaran paket Pro"
+              width={260}
+              height={260}
+              className="rounded-lg bg-white p-1 shadow-sm"
+            />
+            <figcaption className="text-caption text-deep/70">Scan QRIS untuk membayar paket Pro Rp 49.000/bulan.</figcaption>
+          </figure>
         </Card>
       </div>
 
